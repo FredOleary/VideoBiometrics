@@ -1,0 +1,14 @@
+# misc
+.DS_Store
+
+# dependencies
+/node_modules
+
+#VS Code settings
+.vscode/
+
+# database credentials
+config/config.json
+
+#twilio credentials
+utilities/twiloAuth.js
