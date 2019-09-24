@@ -1,0 +1,5 @@
+Pass count,VerticalPk-Pk,VerticalFFT,GreenPk-Pk,GreenFFT,Sum of FFTs, Correlated Pk-Pk, Correlated FFTs
+1,93.26,83.93,58.49,59.95,59.95, 65.8, 59.08
+2,74.38,101.92,65.17,53.96,53.96, 58.23, 53.96
+3,68.13,59.95,64.49,53.96,59.95, 70.26, 58.65
+4,69.66,53.96,58.49,59.95,59.95, 61.49, 55.51

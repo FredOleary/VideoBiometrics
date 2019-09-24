@@ -1,0 +1,30 @@
+#misc
+.idea
+.DS_Store
+
+#sample mov files
+fred-57-heart-rate.mov
+fred-110-heart-rate.mov
+fred-57-heart-rate-2.mov
+#fred_77bpm_30fps.mov
+fred_again.mov
+
+#Temporary files
+Pulse_time series_H
+Pulse_time series_W
+Pulse_time series_X
+Pulse_time series_Y
+Pulse_time series_test
+
+__pycache__/
+
+testfft.py
+
+#virtual environment
+venv/
+
+html/
+
+scratch_stuff/
+*.pyc
+
