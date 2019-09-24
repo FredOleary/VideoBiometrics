@@ -3,11 +3,7 @@
 .DS_Store
 
 #sample mov files
-fred-57-heart-rate.mov
-fred-110-heart-rate.mov
-fred-57-heart-rate-2.mov
-#fred_77bpm_30fps.mov
-fred_again.mov
+sample_videos/
 
 #Temporary files
 Pulse_time series_H
