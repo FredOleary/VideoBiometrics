@@ -7,7 +7,7 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   return HeartRate.findAll({
     raw: true,
-    where:{DeviceId:req.query.device_id}
+    where:{DeviceId:req.query.deviceId}
   }).then(function(result){
     res.send(result);
   }).catch( err =>{
@@ -17,7 +17,7 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
   return HeartRate.create({
     sumFFTs:req.body.sumFFTs,
-    deviceId:req.body.deviceId
+    DeviceId:req.body.deviceId
   }).then( newHeartRate => {
     res.send(newHeartRate);
   }).catch( err =>{
