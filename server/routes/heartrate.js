@@ -15,10 +15,7 @@ router.get('/', function(req, res, next) {
   })
 });
 router.post('/', function(req, res, next) {
-  return HeartRate.create({
-    sumFFTs:req.body.sumFFTs,
-    DeviceId:req.body.deviceId
-  }).then( newHeartRate => {
+  return HeartRate.create(req.body).then( newHeartRate => {
     res.send(newHeartRate);
   }).catch( err =>{
     next(err);

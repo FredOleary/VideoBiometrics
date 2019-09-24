@@ -12,7 +12,9 @@ from roi_motion import ROIMotion
 from roi_color import ROIColor
 from roi_composite import ROIComposite
 from hr_charts import HRCharts
-from hr_csv import HRCsv
+from reporters.csv_reporter import CSVReporter
+from reporters.http_reporter import HTTPReporter
+
 
 SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
@@ -33,7 +35,8 @@ class FrameProcessor:
         self.hr_charts = None
         self.roi_selector = ROISelector(config)
         self.last_frame = None
-        self.hr_csv = HRCsv()
+        self.csv_reporter = CSVReporter()
+        self.HTTPReporter = HTTPReporter(self.config)
         self.hr_estimate_count = 0
 
     def capture(self, video_file_or_camera: str):
@@ -53,7 +56,7 @@ class FrameProcessor:
         if not is_opened:
             print("FrameProcessor:capture - Error opening video stream or file, '{}'".format(video_file_or_camera))
         else:
-            self.hr_csv.open(csv_file)
+            self.csv_reporter.open(csv_file)
 
             # retrieve the camera/video properties.
             width, height = video.get_resolution()
@@ -69,7 +72,7 @@ class FrameProcessor:
             self.__process_feature_detect_then_track(video)
 
         cv2.destroyWindow('Frame')
-        self.hr_csv.close()
+        self.csv_reporter.close()
         video.close_video()
         time.sleep(.5)
         input("Hit Enter to exit")
@@ -174,7 +177,7 @@ class FrameProcessor:
             tracker.calculate_bpm_from_peaks_positive()
             tracker.calculate_bpm_from_fft()
 
-            result_summary["trackers"].update({'{}Pk_Pk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
+            result_summary["trackers"].update({'{}PkPk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
             result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
 
             composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
@@ -203,32 +206,39 @@ class FrameProcessor:
         self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
         self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
 
-        self.__result_summary_to_csv(result_summary)
+        self.csv_reporter.report_results( result_summary)
+        self.http_reporter.report_results( result_summary)
 
     def __round(self, value, precision = 2):
         return None if value is None else round(value, precision)
 
-    def __result_summary_to_csv(self, results):
-        if results["passCount"] == 1:
-            # write the one time header
-            csv_header = "Pass count,"
-            for key in results["trackers"]:
-                csv_header = csv_header + "{},".format(key)
-            csv_header = csv_header + "Sum of FFTs, Correlated Pk-Pk, Correlated FFTs\n"
-            self.hr_csv.write(csv_header)
+    # def __result_summary_to_csv(self, results):
+    #     if results["passCount"] == 1:
+    #         # write the one time header
+    #         csv_header = "Pass count,"
+    #         for key in results["trackers"]:
+    #             csv_header = csv_header + "{},".format(key)
+    #         csv_header = csv_header + "Sum of FFTs, Correlated Pk-Pk, Correlated FFTs\n"
+    #         self.hr_csv.write(csv_header)
+    #
+    #     csv_line = '{},'.format(results["passCount"])
+    #     for value in results["trackers"].values():
+    #         csv_line = csv_line + "{},".format(self.__round(value))
+    #
+    #     csv_line = csv_line + "{}, {}, {}\n".format(
+    #         results["sumFFTs"], results["correlatedPkPk"], results["correlatedFFTs"])
+    #     self.hr_csv.write(csv_line)
 
-        csv_line = '{},'.format(results["passCount"])
-        for value in results["trackers"].values():
-            csv_line = csv_line + "{},".format(self.__round(value))
-
-        csv_line = csv_line + "{}, {}, {}\n".format(
-            results["sumFFTs"], results["correlatedPkPk"], results["correlatedFFTs"])
-        self.hr_csv.write(csv_line)
+    # def __result_to_server(self, results):
+    #     if results["passCount"] == 1:
+    #         self.http_client.register()
+    #
+    #     self.http_client.send_heart_rate(results)
 
     def __create_trackers(self):
         self.tracker_list.clear()
-        self.tracker_list.append(ROIMotion('Y', "Vertical"))
-        self.tracker_list.append(ROIColor('G', "Green"))
+        self.tracker_list.append(ROIMotion('Y', "vertical"))
+        self.tracker_list.append(ROIColor('G', "green"))
 
     @staticmethod
     def __create_camera(video_file_or_camera, fps, width, height):

@@ -1,0 +1,33 @@
+
+
+class CSVReporter:
+    def __init(self):
+        self.file = None
+
+    def open(self, name ):
+        self.file = open('{}.csv'.format(name), 'w')
+
+    def report_results(self, results):
+        if results["passCount"] == 1:
+            # write the one time header
+            csv_header = "Pass count,"
+            for key in results["trackers"]:
+                csv_header = csv_header + "{},".format(key)
+            csv_header = csv_header + "Sum of FFTs, Correlated Pk-Pk, Correlated FFTs\n"
+            self.write(csv_header)
+
+        csv_line = '{},'.format(results["passCount"])
+        for value in results["trackers"].values():
+            csv_line = csv_line + "{},".format(self.__round(value))
+
+        csv_line = csv_line + "{}, {}, {}\n".format(
+            results["sumFFTs"], results["correlatedPkPk"], results["correlatedFFTs"])
+        self.write(csv_line)
+
+    def write(self, csv_line):
+        self.file.write(csv_line)
+        self.file.flush()
+
+    def close(self):
+        if self.file is not None:
+            self.file.close()

@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.fft import fft, ifft, fft2, fftshift
 
+
 def normalize_amplitude( data ):
     normalized_data = (data - np.min(data)) / np.ptp(data)
     return normalized_data
