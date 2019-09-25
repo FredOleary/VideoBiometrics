@@ -24,3 +24,5 @@ html/
 scratch_stuff/
 *.pyc
 
+*.csv
+
