@@ -74,7 +74,6 @@ class FrameGrabber:
                 time.sleep(0.10)
 
     def start_capture(self, number_of_frames):
-        print("CameraOpenCv:start_capture. Total frame count: {}".format(self.total_frame_count))
         # For video files, keep the current queue. For live video, restart it
         if self.is_live_stream:
             self.frame_queue = queue.Queue()

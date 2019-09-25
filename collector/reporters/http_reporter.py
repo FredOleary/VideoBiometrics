@@ -1,5 +1,5 @@
 import requests
-
+from utilities import get_machine_id
 
 class HTTPReporter :
     def __init__(self, config):
@@ -13,7 +13,11 @@ class HTTPReporter :
         self.send_heart_rate(results)
 
     def register(self):
-        registration_info =  {"device":"my_mac", "name":"fred", "description":"A test"}
+        registration_info = {"device":get_machine_id()}
+        if "computer_name" in self.config:
+            registration_info.update({"name":self.config["computer_name"]})
+        if "description" in self.config:
+            registration_info.update({"description": self.config["description"]})
         response = requests.post(self.config["server_url_registration"], registration_info)
         if response.status_code == 200:
             result = response.json()

@@ -10,7 +10,8 @@
                                                                 # 'mouth' for mouth detect,
                                                                 # 'forehead' for forehead detection
                                                                 # 'selectROI' for manual edit of ROI
-    "pause_between_samples":True,                               # If True, the video will pause between Pulse estimations
+    "pause_between_samples":False,                              # If True, the video will pause between Pulse estimations
     "server_url_registration":"http://localhost:3000/devices",  # URL of remove server, registration
-    "server_url_heart_rate":"http://localhost:3000/heartrate"   # URL of remove server, updating heart rate
+    "server_url_heart_rate":"http://localhost:3000/heartrate",  # URL of remove server, updating heart rate
+    "computer_name":"Friendly name for computer"                # User friendly name for computer
 }

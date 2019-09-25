@@ -36,7 +36,7 @@ class FrameProcessor:
         self.roi_selector = ROISelector(config)
         self.last_frame = None
         self.csv_reporter = CSVReporter()
-        self.HTTPReporter = HTTPReporter(self.config)
+        self.http_reporter = HTTPReporter(self.config)
         self.hr_estimate_count = 0
 
     def capture(self, video_file_or_camera: str):
@@ -177,8 +177,10 @@ class FrameProcessor:
             tracker.calculate_bpm_from_peaks_positive()
             tracker.calculate_bpm_from_fft()
 
-            result_summary["trackers"].update({'{}PkPk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
-            result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
+            if tracker.bpm_pk_pk is not None:
+                result_summary["trackers"].update({'{}PkPk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
+            if tracker.bpm_fft is not None:
+                result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
 
             composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
             composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})

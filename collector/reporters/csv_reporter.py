@@ -31,3 +31,6 @@ class CSVReporter:
     def close(self):
         if self.file is not None:
             self.file.close()
+
+    def __round(self, value, precision=2):
+        return None if value is None else round(value, precision)

@@ -1,10 +1,12 @@
 import numpy as np
 from numpy.fft import fft, ifft, fft2, fftshift
+import uuid
 
 
 def normalize_amplitude( data ):
     normalized_data = (data - np.min(data)) / np.ptp(data)
     return normalized_data
+
 
 def correlate_and_sum(y1, y2):
     """Correlate two signals and return the summed difference"""
@@ -40,3 +42,8 @@ def __cross_correlation_using_fft(y1, y2):
     f2 = fft(np.flipud(y2))
     cc = np.real(ifft(f1 * f2))
     return fftshift(cc)
+
+
+def get_machine_id():
+    return str(uuid.getnode())
+    # TODO - implement for raspberry pi
