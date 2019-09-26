@@ -15,7 +15,7 @@
                                                                 # 'forehead' for forehead detection
                                                                 # 'selectROI' for manual edit of ROI
 
-    "pause_between_samples":False,                              # If True, the video will pause between Pulse estimations
+    "pause_between_samples":True,                               # If True, the video will pause between Pulse estimations
     "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
 
     "server_url_registration":"http://localhost:3000/devices",  # URL of remove server, registration

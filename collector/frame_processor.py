@@ -232,8 +232,8 @@ class FrameProcessor:
 
     def __create_trackers(self):
         self.tracker_list.clear()
-        self.tracker_list.append(ROIMotion(logger, 'Y', "vertical"))
-        self.tracker_list.append(ROIColor(logger, 'G', "green"))
+        self.tracker_list.append(ROIMotion(self.logger, 'Y', "vertical"))
+        self.tracker_list.append(ROIColor(self.logger, 'G', "green"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""
