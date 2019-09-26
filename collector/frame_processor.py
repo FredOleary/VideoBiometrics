@@ -36,7 +36,7 @@ class FrameProcessor:
         self.roi_selector = ROISelector(config)
         self.last_frame = None
         self.csv_reporter = CSVReporter()
-        self.http_reporter = HTTPReporter(self.config)
+        self.http_reporter = HTTPReporter(self.logger, self.config)
         self.hr_estimate_count = 0
 
     def capture(self, video_file_or_camera: str):

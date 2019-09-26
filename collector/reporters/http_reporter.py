@@ -2,7 +2,8 @@ import requests
 from utilities import get_machine_id
 
 class HTTPReporter :
-    def __init__(self, config):
+    def __init__(self, logger, config):
+        self.logger = logger
         self.config = config
         self.id = None
 
@@ -18,7 +19,7 @@ class HTTPReporter :
             registration_info.update({"name":self.config["computer_name"]})
         if "computer_description" in self.config:
             registration_info.update({"description": self.config["computer_description"]})
-        response = requests.post(self.config["server_url_registration"], registration_info)
+        response = requests.post("{}{}".format(self.config["server_url"], "register"), registration_info)
         if response.status_code == 200:
             result = response.json()
             self.id = result["id"]
@@ -32,7 +33,7 @@ class HTTPReporter :
         http_data.update({"DeviceId":self.id})
         for key, value in results["trackers"].items():
             http_data.update({key: value})
-        response = requests.post(self.config["server_url_heart_rate"], http_data)
+        response = requests.post("{}{}".format(self.config["server_url"], "heartrate"), http_data)
         if response.status_code == 200:
             return True
         else:
