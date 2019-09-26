@@ -1,6 +1,5 @@
 import time
 import os
-import numpy as np
 
 import cv2
 
@@ -22,9 +21,10 @@ CORRELATED_SUM = "Correlated-Sum"
 
 # noinspection PyUnresolvedReferences
 class FrameProcessor:
-    def __init__(self, config):
-        print("FrameProcessor:__init__ - openCV version: {}".format( cv2.__version__))
-        print("FrameProcessor:__init__ - Configuration: ", config)
+    def __init__(self, config, logger):
+        self.logger = logger;
+        self.logger.info("openCV version: {}".format(cv2.__version__))
+        self.logger.info("Configuration: {} ".format(config))
         self.config = config
         self.start_sample_time = None
         self.pulse_rate_bpm = "Not available"
@@ -41,7 +41,7 @@ class FrameProcessor:
 
     def capture(self, video_file_or_camera: str):
         """Open video file or start camera. Then start processing frames for motion"""
-        print("FrameProcessor:capture")
+        self.logger.info("Capture")
 
         csv_file = video_file_or_camera
         if video_file_or_camera is None:
@@ -54,7 +54,7 @@ class FrameProcessor:
 
         is_opened = video.open_video(video_file_or_camera)
         if not is_opened:
-            print("FrameProcessor:capture - Error opening video stream or file, '{}'".format(video_file_or_camera))
+            self.logger.error("Error opening video stream or file, '{}'".format(video_file_or_camera))
         else:
             self.csv_reporter.open(csv_file)
 
@@ -63,19 +63,20 @@ class FrameProcessor:
             self.config["resolution"]["width"] = width
             self.config["resolution"]["height"] = height
             self.config["video_fps"] = video.get_frame_rate()
-
-            print("FrameProcessor:capture - Video: Resolution = {} X {}. Frame rate {}".
+            self.logger.info("Capture - Video: Resolution = {} X {}. Frame rate {}".
                   format(self.config["resolution"]["width"],
                          self.config["resolution"]["height"],
                          round(self.config["video_fps"])))
 
             self.__process_feature_detect_then_track(video)
 
-        cv2.destroyWindow('Frame')
-        self.csv_reporter.close()
+            cv2.destroyWindow('Frame')
+            self.csv_reporter.close()
+
         video.close_video()
         time.sleep(.5)
-        input("Hit Enter to exit")
+        if self.config["headless"] is False:
+            input("Hit Enter to exit")
 
     def __start_capture(self, video):
         """Start streaming the video file or camera"""
@@ -90,8 +91,8 @@ class FrameProcessor:
         tracking = False
 
         self.__start_capture(video)
-        if self.config["show_pulse_charts"] is True:
-            self.hr_charts = HRCharts()
+        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+            self.hr_charts = HRCharts(self.logger)
             for tracker in self.tracker_list:
                 self.hr_charts.add_chart(tracker.name)
 
@@ -101,13 +102,17 @@ class FrameProcessor:
         while video.is_opened():
             ret, frame = video.read_frame()
             if ret:
-                # If the original frame is not writable and we wish to modify the frame. E.g. change the ROI to green
-                self.last_frame = frame.copy()
+                if self.config["headless"] is False:
+                    # If the original frame is not writable and we wish to modify the frame. E.g. change the ROI to green
+                    self.last_frame = frame.copy()
+                else:
+                    self.last_frame = frame
+
                 self.frame_number += 1
                 if not tracking:
                     found, x, y, w, h = self.roi_selector.select_roi(self.last_frame)
                     if found:
-                        print("FrameProcessor:process_feature_detect_then_track - Tracking after face detect")
+                        self.logger.info("Tracking after face detect")
                         for tracker in self.tracker_list:
                             tracker.initialize(x, y, w, h, self.last_frame)
 
@@ -128,31 +133,36 @@ class FrameProcessor:
                         h = int(bbox[3])
                         for tracker in self.tracker_list:
                             tracker.update(x, y, w, h, self.last_frame)
-                        cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (225, 0, 0), 1)
+                        if self.config["headless"] is False:
+                            cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (225, 0, 0), 1)
                     else:
-                        print("FrameProcessor:process_feature_detect_then_track - Tracker failed")
+                        self.logger.warning("Tracker failed")
                         self.__start_capture(video)
                         tracking = False
 
-                pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(self.pulse_rate_bpm, 2)
-                cv2.putText(self.last_frame, "Pulse rate (BPM): {}. Frame: {}".format(pulse_rate, self.frame_number),
+                if self.config["headless"] is False:
+                    pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(self.pulse_rate_bpm, 2)
+                    cv2.putText(self.last_frame, "Pulse rate (BPM): {}. Frame: {}".format(pulse_rate, self.frame_number),
                             (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
-                cv2.imshow('Frame', self.last_frame)
+                    cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
                     self.__update_results(video.get_frame_rate())
-                    print("FrameProcessor:process_feature_detect_then_track - Processing time: {} seconds. FPS: {}. Frame count: {}".
-                          format(round(time.time() - self.start_process_time, 2),
-                          round(self.frame_number / (time.time() - self.start_process_time), 2), self.frame_number))
-                    if self.config["pause_between_samples"]:
+                    self.logger.info("FrameProcessor:process_feature_detect_then_track - Processing time: {} "
+                                     "seconds. FPS: {}. Frame count: {}".
+                                     format(round(time.time() - self.start_process_time, 2),
+                                            round(self.frame_number / (time.time() -
+                                                                       self.start_process_time), 2), self.frame_number))
+                    if self.config["pause_between_samples"] and self.config["headless"] is False :
                         input("Hit enter to continue")
                     self.__start_capture(video)
                     tracking = False
-                # Press Q on keyboard to  exit
-                if cv2.waitKey(10) & 0xFF == ord('q'):
-                    break
+                if self.config["headless"] is False:
+                    # Press Q on keyboard to  exit
+                    if cv2.waitKey(10) & 0xFF == ord('q'):
+                        break
             else:
-                print("FrameProcessor:process_feature_detect_then_track - Video stream ended")
+                self.logger.info("Video stream ended")
                 break
         return
 
@@ -164,7 +174,7 @@ class FrameProcessor:
             "trackers": {}
         }
 
-        roi_composite = ROIComposite(self.tracker_list)
+        roi_composite = ROIComposite(self.logger, self.tracker_list)
 
         composite_data_summ_fft = {
             "bpm_fft": None,
@@ -186,7 +196,8 @@ class FrameProcessor:
             composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
             composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
 
-            self.hr_charts.update_chart(tracker)
+            if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+                self.hr_charts.update_chart(tracker)
             index +=1
 
         roi_composite.sum_ffts()
@@ -205,48 +216,29 @@ class FrameProcessor:
         else:
             self.pulse_rate_bpm = "Not available"
 
-        self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
-        self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
+        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+            self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
+            self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
 
-        self.csv_reporter.report_results( result_summary)
-        self.http_reporter.report_results( result_summary)
+        if self.config["csv_output"] is True:
+            self.csv_reporter.report_results( result_summary)
+        if self.config["http_output"] is True:
+            self.http_reporter.report_results( result_summary)
+
+        self.logger.info("Results: {} ".format(result_summary))
 
     def __round(self, value, precision = 2):
         return None if value is None else round(value, precision)
 
-    # def __result_summary_to_csv(self, results):
-    #     if results["passCount"] == 1:
-    #         # write the one time header
-    #         csv_header = "Pass count,"
-    #         for key in results["trackers"]:
-    #             csv_header = csv_header + "{},".format(key)
-    #         csv_header = csv_header + "Sum of FFTs, Correlated Pk-Pk, Correlated FFTs\n"
-    #         self.hr_csv.write(csv_header)
-    #
-    #     csv_line = '{},'.format(results["passCount"])
-    #     for value in results["trackers"].values():
-    #         csv_line = csv_line + "{},".format(self.__round(value))
-    #
-    #     csv_line = csv_line + "{}, {}, {}\n".format(
-    #         results["sumFFTs"], results["correlatedPkPk"], results["correlatedFFTs"])
-    #     self.hr_csv.write(csv_line)
-
-    # def __result_to_server(self, results):
-    #     if results["passCount"] == 1:
-    #         self.http_client.register()
-    #
-    #     self.http_client.send_heart_rate(results)
-
     def __create_trackers(self):
         self.tracker_list.clear()
-        self.tracker_list.append(ROIMotion('Y', "vertical"))
-        self.tracker_list.append(ROIColor('G', "green"))
+        self.tracker_list.append(ROIMotion(logger, 'Y', "vertical"))
+        self.tracker_list.append(ROIColor(logger, 'G', "green"))
 
-    @staticmethod
-    def __create_camera(video_file_or_camera, fps, width, height):
+    def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""
         # For files nor non raspberry pi devices, use opencv, for real-time video on raspberry pi, use CameraRaspbian
         if os.path.isfile("/etc/rpi-issue") and video_file_or_camera == 0:
-            return RaspberianGrabber(cv2, fps, width, height)
+            return RaspberianGrabber(cv2, fps, width, height, self.logger)
         else:
-            return FrameGrabber(cv2, fps, width, height)
+            return FrameGrabber(cv2, fps, width, height, self.logger)

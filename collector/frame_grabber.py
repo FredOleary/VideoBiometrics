@@ -5,11 +5,12 @@ import queue
 
 class FrameGrabber:
 
-    def __init__(self, cv2, fps, width, height):
+    def __init__(self, cv2, fps, width, height, logger):
         self.cv2 = cv2
         self.fps = fps
         self.width = width
         self.height = height
+        self.logger = logger
         self.capture = None
         self.stopped = True
         self.paused = True
@@ -55,7 +56,7 @@ class FrameGrabber:
         return self.capture.isOpened()
 
     def close_video(self):
-        print("close_video - closing video")
+        self.logger.info("Closing video")
         if not self.video_ended:
             self.end_time = time.time()
         self.stopped = True
@@ -95,18 +96,19 @@ class FrameGrabber:
                     if self.frame_number >= self.number_of_frames and self.number_of_frames != -1:
                         self.paused = True
                         self.end_time = time.time()
-                        print("CameraOpenCv:update - paused. Total frame count: {}, FPS: {}".format(
+                        self.logger.info("Paused. Total frame count: {}, FPS: {}".format(
                             self.total_frame_count,
                             round(self.frame_number / (self.end_time - self.start_time), 2)))
                 else:
                     if not self.video_ended:
                         self.video_ended = True
                         self.end_time = time.time()
-                    print("CameraOpenCv:Frame Queue size: ", self.frame_queue.qsize())
+
+                    self.logger.info("Frame Queue size: ", self.frame_queue.qsize())
                     self.stopped = True
             else:
                 time.sleep(0.10)
 
-        print("CameraOpenCv:Video Ended. Frame Count: {}".format(self.total_frame_count))
+        self.logger.info("Video Ended. Frame Count: {}".format(self.total_frame_count))
         self.capture.release()
         return

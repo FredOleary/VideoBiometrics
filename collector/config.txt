@@ -1,17 +1,25 @@
 {
+    "headless":True,                                            # if True, all UI is suppressed
+    "csv_output":False,                                         # if TRUE a csv summary of heart rate is produced
+    "http_output":True,                                         # if TRUE, heart rate data is sent to a remote server
+
     "low_pulse_bpm":42,                                         # low pulse rate in beats per minute
     "high_pulse_bpm":150,                                       # high pulse rate in beats per minute
     "video_fps":30,                                             # preferred frame rate. (Does not apply to video files)
     "resolution":{"width":640, "height":480},                   # (Does not apply to video files)
     "pulse_sample_frames":300,                                  # Number of video frames used to measure pulse rate
-    "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
+
     "feature_method":'forehead',                                # Options are:
                                                                 # 'face' for face detect,
                                                                 # 'mouth' for mouth detect,
                                                                 # 'forehead' for forehead detection
                                                                 # 'selectROI' for manual edit of ROI
+
     "pause_between_samples":False,                              # If True, the video will pause between Pulse estimations
+    "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
+
     "server_url_registration":"http://localhost:3000/devices",  # URL of remove server, registration
     "server_url_heart_rate":"http://localhost:3000/heartrate",  # URL of remove server, updating heart rate
-    "computer_name":"Friendly name for computer"                # User friendly name for computer
+    "computer_name":"Friendly name for computer",               # User friendly name for computer
+    "computer_description":"whatever"                           # Additional info, optional
 }

@@ -3,7 +3,8 @@ import numpy as np
 from roi_tracker import ROITracker
 class HRCharts:
     """Charts showing results of motion analysis of video """
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.chart_dictionary = {}
 
     def add_chart(self, name, sub_charts = 3):
@@ -69,7 +70,7 @@ class HRCharts:
                     self.chart_dictionary[tracker.name]["ax"][2].legend(loc='best')
 
             except IndexError:
-                print("charting error " + tracker.name)
+                self.logger.error("charting error " + tracker.name)
         else:
             self.chart_dictionary[tracker.name]["fig"].suptitle(tracker.name + " BPM - Not available"
                                                            , fontsize=14)
@@ -118,7 +119,7 @@ class HRCharts:
                 self.chart_dictionary[data['name']]["ax"][1].legend(loc='best')
 
         except IndexError:
-            print("charting error " + data['name'])
+            self.logger.error("charting error " + data['name'])
 
         plt.ion()
         plt.pause(0.00001)
@@ -176,7 +177,7 @@ class HRCharts:
                 self.chart_dictionary[name]["ax"][1].legend(loc='best')
 
         except IndexError:
-            print("charting error " + name)
+            self.logger.error("charting error " + name)
 
         plt.ion()
         plt.pause(0.00001)

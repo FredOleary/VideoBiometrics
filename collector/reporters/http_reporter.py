@@ -16,15 +16,15 @@ class HTTPReporter :
         registration_info = {"device":get_machine_id()}
         if "computer_name" in self.config:
             registration_info.update({"name":self.config["computer_name"]})
-        if "description" in self.config:
-            registration_info.update({"description": self.config["description"]})
+        if "computer_description" in self.config:
+            registration_info.update({"description": self.config["computer_description"]})
         response = requests.post(self.config["server_url_registration"], registration_info)
         if response.status_code == 200:
             result = response.json()
             self.id = result["id"]
             return True
         else:
-            # TODO log failure
+            self.logger.error("Registration failure, HTTP status: {}".format(response.status_code))
             return False
 
     def send_heart_rate(self, results):
@@ -36,5 +36,5 @@ class HTTPReporter :
         if response.status_code == 200:
             return True
         else:
-            # TODO log failure
+            self.logger.error("POST failure, HTTP status: {}".format(response.status_code))
             return False

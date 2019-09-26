@@ -3,8 +3,9 @@ from roi_tracker import ROITracker
 
 class ROIMotion(ROITracker):
     """ROIMotion maintains raw and processed data for a X/Y dimension of interest """
-    def __init__(self, dimension, name):
+    def __init__(self, logger,  dimension, name):
         super().__init__(name)
+        self.logger = logger
         self.dimension = dimension
 
     def initialize(self, x, y, w, h, frame):
@@ -21,4 +22,3 @@ class ROIMotion(ROITracker):
         self.time_filter(fps, low_pulse_bpm, high_pulse_bpm)
         self.calculate_positive_peaks()
         self.fft_filter(fps, low_pulse_bpm, high_pulse_bpm)
-        print( "processing")

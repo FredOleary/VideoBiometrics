@@ -5,7 +5,8 @@ from fft_filter import FFTFilter
 
 class ROIComposite():
     """ROIComposite calculates data by 'combining' data from other ROI trackers """
-    def __init__(self, tracker_list):
+    def __init__(self, logger, tracker_list):
+        self.logger = logger
         self.tracker_list = tracker_list
         self.sum_of_ffts_amplitude = None
         self.sum_of_ffts_frequency = None

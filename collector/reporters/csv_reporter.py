@@ -1,7 +1,7 @@
 
 
 class CSVReporter:
-    def __init(self):
+    def __init__(self):
         self.file = None
 
     def open(self, name ):

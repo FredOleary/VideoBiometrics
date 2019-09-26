@@ -14,11 +14,12 @@ except ImportError:
 
 
 class RaspberianGrabber:
-    def __init__(self, cv2, fps, width, height):
+    def __init__(self, cv2, fps, width, height, logger):
         self.camera = None
         self.fps = fps
         self.width = width
         self.height = height
+        self.logger = logger
         self.is_open = False
         self.stream = None
         self.stopped = False
@@ -61,7 +62,7 @@ class RaspberianGrabber:
             time.sleep(0.3)
             return True
         except PiCameraMMALError:
-            print("RaspberianGrabber - open camera failed")
+            self.logger.error("Open camera failed")
             self.is_open = False
             return False
 
@@ -77,7 +78,7 @@ class RaspberianGrabber:
         return True, self.frame_queue.get()     # Block until next frame is delivered
 
     def start_capture(self, number_of_frames):
-        print("RaspberianGrabber:start_capture. Total frame count: {}".format(self.total_frame_count))
+        self.logger.error("Total frame count: {}".format(self.total_frame_count))
         self.frame_queue = queue.Queue()
         self.frame_number = 0
         self.number_of_frames = number_of_frames
@@ -96,7 +97,7 @@ class RaspberianGrabber:
                 if self.frame_number > self.number_of_frames and self.number_of_frames != -1:
                     self.paused = True
                     self.end_time = time.time()
-                    print("RaspberianGrabber:update - paused. Total frame count: {}, FPS: {}".format(
+                    self.logger.info("Paused. Total frame count: {}, FPS: {}".format(
                         self.total_frame_count,
                         round(self.frame_number / (self.end_time - self.start_time), 2)))
 
@@ -110,5 +111,5 @@ class RaspberianGrabber:
                 self.camera.close()
                 break
 
-        print("RaspberianGrabber:Video Ended. Frame Count: {}".format(self.total_frame_count))
+        self.logger.info("Video Ended. Frame Count: {}".format(self.total_frame_count))
         return

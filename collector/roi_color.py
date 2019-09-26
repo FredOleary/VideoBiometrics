@@ -4,9 +4,10 @@ from roi_tracker import ROITracker
 
 class ROIColor(ROITracker):
     """ROIColor maintains raw and processed data for a RGB color changes """
-    def __init__(self, rgb_color, name):
+    def __init__(self, logger, rgb_color, name):
         super().__init__(name)
         self.rgb_color = rgb_color
+        self.logger = logger
 
     def initialize(self, x, y, w, h, frame):
         color_average, roi_filtered = self.__getAverage(x, y, w, h, frame)
@@ -25,7 +26,6 @@ class ROIColor(ROITracker):
         self.time_filter(fps, low_pulse_bpm, high_pulse_bpm)
         self.calculate_positive_peaks()
         self.fft_filter(fps, low_pulse_bpm, high_pulse_bpm)
-        print( "processing")
 
     def __getAverage(self, x, y, w, h, source_image):
         # If (x1,y1) and (x2,y2) are the two opposite vertices of mat
@@ -53,5 +53,6 @@ class ROIColor(ROITracker):
                 avg_color_per_row = np.average(roi_filtered, axis=0)
                 color_average = np.average(avg_color_per_row, axis=0)[1]
             except ZeroDivisionError:
-                print("ZeroDivisionError - Exception!")
+                if self.logger is not None:
+                    self.logger.error("ZeroDivisionError - Exception!")
         return color_average, roi_filtered
