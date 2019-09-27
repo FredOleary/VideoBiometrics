@@ -4,7 +4,7 @@ import {devicesActions} from '../actions/devicesAction';
 import { connect } from "react-redux";
 import {bindActionCreators} from "redux";
 
-const breadLogo = require('.././images/bread_icon.png');
+const breadLogo = require('.././images/heart2.png');
 
 
 // const options = [
