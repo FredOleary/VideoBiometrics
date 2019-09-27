@@ -52,9 +52,7 @@ const mapStateToProps = state => {
         );
     }
     getChartData = () =>{
-        return this.props.chartData;
-    }
-    getDeltaChartData =() =>{
+        console.log("Get Chart Data")
         return this.props.chartData;
     }
 }

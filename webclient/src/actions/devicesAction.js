@@ -47,7 +47,7 @@ function fetchHeartRateForDevice( deviceId) {
                         return (new Date(entry.createdAt)).toLocaleString();
                     });
                     result.sumFFTs = response.data.map( entry => {return entry.sumFFTs});
-                    result.greenFFT = response.data.map( entry => {return entry.greenFFT});
+                    result.correlatedFFTs = response.data.map( entry => {return entry.correlatedFFTs});
                     result.correlatedPkPk = response.data.map( entry => {return entry.correlatedPkPk});
                     result.verticalPkPk = response.data.map( entry => {return entry.verticalPkPk});
                     result.verticalFFT = response.data.map( entry => {return entry.verticalFFT});

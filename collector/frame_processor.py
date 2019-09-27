@@ -70,7 +70,7 @@ class FrameProcessor:
 
             self.__process_feature_detect_then_track(video)
 
-            cv2.destroyWindow('Frame')
+            cv2.destroyAllWindows()
             self.csv_reporter.close()
 
         video.close_video()
