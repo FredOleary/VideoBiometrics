@@ -3,9 +3,10 @@ from roi_tracker import ROITracker
 
 class ROIMotion(ROITracker):
     """ROIMotion maintains raw and processed data for a X/Y dimension of interest """
-    def __init__(self, logger,  dimension, name):
+    def __init__(self, logger, config, dimension, name):
         super().__init__(name)
         self.logger = logger
+        self.config = config
         self.dimension = dimension
 
     def initialize(self, x, y, w, h, frame):
