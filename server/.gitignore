@@ -4,6 +4,9 @@
 # dependencies
 /node_modules
 
+# production
+/build
+
 #VS Code settings
 .vscode/
 
@@ -12,5 +15,3 @@ config/config.json
 
 #twilio credentials
 utilities/twiloAuth.js
-
-collector/collector.txt
