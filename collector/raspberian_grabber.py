@@ -78,7 +78,7 @@ class RaspberianGrabber:
         return True, self.frame_queue.get()     # Block until next frame is delivered
 
     def start_capture(self, number_of_frames):
-        self.logger.error("Total frame count: {}".format(self.total_frame_count))
+        # self.logger.info("Total frame count: {}".format(self.total_frame_count))
         self.frame_queue = queue.Queue()
         self.frame_number = 0
         self.number_of_frames = number_of_frames
