@@ -1,4 +1,5 @@
 import requests
+import socket
 from utilities import get_machine_id
 
 class HTTPReporter :
@@ -16,7 +17,7 @@ class HTTPReporter :
     def register(self):
         registration_info = {"device":get_machine_id()}
         if "computer_name" in self.config:
-            registration_info.update({"name":self.config["computer_name"]})
+            registration_info.update({"name":socket.gethostname()})
         if "computer_description" in self.config:
             registration_info.update({"description": self.config["computer_description"]})
         response = requests.post("{}{}".format(self.config["server_url"], "register"), registration_info)
