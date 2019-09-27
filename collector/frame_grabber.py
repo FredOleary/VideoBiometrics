@@ -104,7 +104,8 @@ class FrameGrabber:
                         self.video_ended = True
                         self.end_time = time.time()
 
-                    self.logger.info("Frame Queue size: ", self.frame_queue.qsize())
+                    self.logger.info("Frame Queue size: {}".format( self.frame_queue.qsize()))
+
                     self.stopped = True
             else:
                 time.sleep(0.10)
