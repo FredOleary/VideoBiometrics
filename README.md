@@ -11,4 +11,7 @@ Git clone repo
  Server:
  cd server
     copy config_sample.json to config.json, fill in DB credentials and ip
+    yarn install
+    yarn start... -server should start
+    
     
