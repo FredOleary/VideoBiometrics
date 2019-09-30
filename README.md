@@ -1,17 +1,8 @@
 # VideoBiometrics
 
-Installiing node via nvm
- brew update
- brew install nvm (Follow onscreen instryctions to complete nvm setuo)
- mkdir ~/.nvm
- nvm install 10.16.0
+VideoBiometrics is a proof-of-concept platform to record, store and display heart rate data calculated from measuring face micro motion
 
-Git clone repo
+This platform consists of three projects, **collector**, **server** and **webclient** as outlined in diagram below. The README.md file in each project contains additional information
 
- Server:
- cd server
-    copy config_sample.json to config.json, fill in DB credentials and ip
-    yarn install
-    yarn start... -server should start
-    
-    
+
+

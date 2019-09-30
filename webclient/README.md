@@ -1,3 +1,30 @@
+# WebClient
+
+WebClient is a React node appliction that displays biometric data retrieved from the HTTP based **server** application. 
+
+Note that as proof-of-concept application, **WebClient** is missing features that would be required in production such as authentication and encryption
+
+##Pre-requisites
+1) Node. **WebClient** is Node application and requires Node version 10.16.0, (or later). It is recommended that the node version manager
+**nvm** is used.
+
+##Installation steps
+1) Start the installation steps outlined in the **server** README document
+
+2) Install the dependencies
+
+    `VideoBiometrics/webclient $ yarn install`
+3) Build the application
+
+    `VideoBiometrics/webclient $ yarn build`
+
+3) Complete the installation steps outlined in the **server** README document
+
+4) The section below describes additional information on using ***webclient***
+
+
+##README created by the React framework
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

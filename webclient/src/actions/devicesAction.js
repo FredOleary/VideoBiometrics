@@ -85,6 +85,7 @@ const createChartData = heartRate => {
 		sumFFTs.pointRadius=0;
         sumFFTs.borderColor='rgb(53, 91, 183)';
         sumFFTs.label = "Sum FFTs";
+        sumFFTs.lineTension = 0;
         sumFFTs.yAxisID = 'A';
         chartData.datasets.push( sumFFTs);
 
@@ -95,6 +96,7 @@ const createChartData = heartRate => {
 		correlatedFFTs.pointRadius=0;
         correlatedFFTs.borderColor='rgb(80, 80, 250)';
         correlatedFFTs.label = "Correlated FFTs";
+        correlatedFFTs.lineTension = 0;
         correlatedFFTs.yAxisID = 'A';
         chartData.datasets.push( correlatedFFTs);
 
@@ -105,6 +107,7 @@ const createChartData = heartRate => {
 		correlatedPkPk.pointRadius=0;
         correlatedPkPk.borderColor='rgb(53, 183, 91)';
         correlatedPkPk.label = "Correlated Pk-Pk";
+        correlatedPkPk.lineTension = 0;
         correlatedPkPk.yAxisID = 'A';
         chartData.datasets.push( correlatedPkPk);
  
@@ -115,6 +118,7 @@ const createChartData = heartRate => {
 		greenFFT.pointRadius=0;
         greenFFT.borderColor='rgb(183, 53, 91)';
         greenFFT.label = "Green FFT";
+        greenFFT.lineTension = 0;
         greenFFT.yAxisID = 'A';
         chartData.datasets.push( greenFFT);
 
@@ -125,6 +129,7 @@ const createChartData = heartRate => {
 		greenPkPk.pointRadius=0;
         greenPkPk.borderColor='rgb(80, 250, 80)';
         greenPkPk.label = "Green Pk-Pk";
+        greenPkPk.lineTension = 0;
         greenPkPk.yAxisID = 'A';
         chartData.datasets.push( greenPkPk);
 
@@ -135,6 +140,7 @@ const createChartData = heartRate => {
 		verticalFFT.pointRadius=0;
         verticalFFT.borderColor='rgb(250, 80, 80)';
         verticalFFT.label = "Vertical FFT";
+        verticalFFT.lineTension = 0;
         verticalFFT.yAxisID = 'A';
         chartData.datasets.push( verticalFFT);
 
@@ -146,6 +152,7 @@ const createChartData = heartRate => {
 		verticalPkPk.pointRadius=0;
         verticalPkPk.borderColor='rgb(200, 200, 91)';
         verticalPkPk.label = "Vertical Pk-Pk";
+        verticalPkPk.lineTension = 0;
         verticalPkPk.yAxisID = 'A';
         chartData.datasets.push( verticalPkPk);
 
