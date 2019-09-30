@@ -30,8 +30,8 @@ The **collector** estimates pulse rate from a video stream by measuring face mic
 ## Usage
 1. To verify the installation and camera: `python play_video.py` Verify that video streams and that the camera is correctly positioned for face detection. To exit, move focus to the video window and press 'q'.
 
-2. To measure pulse rate run `python main.py`. Heart rate will be estimated every 10 seconds. Results are stored, (optionally) in a csv file OR sent to a remote server
-3. Optionally use `python main.py video_file.mov` to process a video file
+2. To measure pulse rate run `python main.py`. Heart rate will be estimated every 10 seconds. Results are stored, (optionally) in a csv file and/or sent to a remote server
+3. Optionally use `python main.py video_file.mov` to process an existing video file
 
 ## Options
 The configuration file config.txt contains the many options for saving heart rate data as well as for development. Config.txt is organized as a python 

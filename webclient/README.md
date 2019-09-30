@@ -4,11 +4,11 @@ WebClient is a React node appliction that displays biometric data retrieved from
 
 Note that as proof-of-concept application, **WebClient** is missing features that would be required in production such as authentication and encryption
 
-##Pre-requisites
+## Pre-requisites
 1) Node. **WebClient** is Node application and requires Node version 10.16.0, (or later). It is recommended that the node version manager
 **nvm** is used.
 
-##Installation steps
+## Installation steps
 1) Start the installation steps outlined in the **server** README document
 
 2) Install the dependencies
@@ -23,7 +23,7 @@ Note that as proof-of-concept application, **WebClient** is missing features tha
 4) The section below describes additional information on using ***webclient***
 
 
-##README created by the React framework
+## README created by the React framework
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

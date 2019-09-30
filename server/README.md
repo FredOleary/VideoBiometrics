@@ -1,17 +1,17 @@
 # Server
 
-Server is and Express node appliction that persists biometric data sent by the VideoBiometrics **collector** application. 
+Server is an Express node appliction that persists biometric data sent by the VideoBiometrics **collector** application. 
 Additionally **server** hosts the **webclient** application that graphically displays biometric data. 
 
 Note that as proof-of-concept application, **server** is missing features that would be required in production such as authentication and encryption
 
-##Pre-requisites
+## Pre-requisites
 1) Node. **Server** is Node application and requires Node version 10.16.0, (or later). It is recommended that the node version manager
 **nvm** is used.
 2) MySql. **Server** uses a MySql database to persist the biometric data
 3) A schema in the database, named **video_biometrics**
 
-##Installation steps
+## Installation steps
 1) Copy the config_sample.json file to config.json and complete the database credentials 
 
     `VideoBiometrics/server/config $ cp config_sample.json config.json`
