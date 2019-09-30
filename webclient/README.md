@@ -22,6 +22,11 @@ Note that as proof-of-concept application, **WebClient** is missing features tha
 
 4) The section below describes additional information on using ***webclient***
 
+## Usage
+After running the sever, point a browser to the server. From the drop list in the top left of the browser window, choose a 'collector'. 
+The chart will then display the results of the various heart rate calculations. Note that calculations can be enabled and disabled
+
+![Sample Screen](webclient_screen.png)
 
 ## README created by the React framework
 
