@@ -5,10 +5,10 @@ WebClient is a React node appliction that displays biometric data retrieved from
 Note that as proof-of-concept application, **WebClient** is missing features that would be required in production such as authentication and encryption
 
 ## Pre-requisites
-1) Node. **WebClient** is Node application and requires Node version 10.16.0, (or later). It is recommended that the node version manager
+1) Node. **WebClient** is a React Node application and requires Node version 10.16.0, (or later). It is recommended that the node version manager
 **nvm** is used.
 
-## Installation steps
+## Installation steps (Deployment)
 1) Start the installation steps outlined in the **server** README document
 
 2) Install the dependencies
@@ -21,6 +21,20 @@ Note that as proof-of-concept application, **WebClient** is missing features tha
 3) Complete the installation steps outlined in the **server** README document
 
 4) The section below describes additional information on using ***webclient***
+
+## Development using Visual Studio Code
+1) Complete steps 1 through 2 as outlined above
+2) Open the **webclient** folder from Visual Studio Code
+3) Select the 'Debug' View 
+4) From the 'Launch Program' drop box, add a 'Node' configuration
+5) Open a terminal, change to folder **webclient** start the and
+
+    `VideoBiometrics/webclient $ yarn start`
+5) You can now run the webclient in debug mode, set breakpoints etc. In debug mode **webclient** will run on port 3001
+
+Note: If breakpoints fail, manually STOP and re-launch the application from Visual Studio Code
+
+
 
 ## Usage
 After running the sever, point a browser to the server. From the drop list in the top left of the browser window, choose a 'collector'. 
