@@ -35,5 +35,5 @@ The **collector** estimates pulse rate from a video stream by measuring face mic
 
 ## Options
 The configuration file config.txt contains the many options for saving heart rate data as well as for development. Config.txt is organized as a python 
-dictionary so take care when editing. The one entry that is deployment sensitive is `"server_url"` If heart results are being sent to a remote server, ensure the service is running
+dictionary so take care when editing. The one entry that is deployment sensitive is `"server_url"`. If heart results are being sent to a remote server, ensure the service is running
 
