@@ -13,11 +13,11 @@ from roi_composite import ROIComposite
 from hr_charts import HRCharts
 from reporters.csv_reporter import CSVReporter
 from reporters.http_reporter import HTTPReporter
-
+from roi_color_ica import ROIColorICA
 
 SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
-
+DEPRECATED = True
 
 # noinspection PyUnresolvedReferences
 class FrameProcessor:
@@ -91,13 +91,13 @@ class FrameProcessor:
         tracking = False
 
         self.__start_capture(video)
-        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+        if self.config["headless"] is False:
             self.hr_charts = HRCharts(self.logger)
             for tracker in self.tracker_list:
                 self.hr_charts.add_chart(tracker.name)
-
-            self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts = 2)
-            self.hr_charts.add_chart(CORRELATED_SUM, sub_charts = 2)
+            if DEPRECATED is False:
+                self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts = 2)
+                self.hr_charts.add_chart(CORRELATED_SUM, sub_charts = 2)
 
         while video.is_opened():
             ret, frame = video.read_frame()
@@ -158,9 +158,12 @@ class FrameProcessor:
                     self.__start_capture(video)
                     tracking = False
                 if self.config["headless"] is False:
-                    # Press Q on keyboard to  exit
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
-                        break
+                    # Allow UI
+                    key = cv2.waitKey(10) & 0xFF
+                    if key ==  ord('q'):
+                        break               # Exit
+                    elif key == ord('g'):
+                        self.config["show_pulse_charts"] = True if self.config["show_pulse_charts"] == False else True
             else:
                 self.logger.info("Video stream ended")
                 break
@@ -173,13 +176,13 @@ class FrameProcessor:
             "passCount": self.hr_estimate_count,
             "trackers": {}
         }
+        if DEPRECATED is False:
+            roi_composite = ROIComposite(self.logger, self.tracker_list)
 
-        roi_composite = ROIComposite(self.logger, self.tracker_list)
-
-        composite_data_summ_fft = {
-            "bpm_fft": None,
-            "name": SUM_FTT_COMPOSITE,
-        }
+            composite_data_summ_fft = {
+                "bpm_fft": None,
+                "name": SUM_FTT_COMPOSITE,
+            }
 
         index = 1;
         for tracker in self.tracker_list:
@@ -192,33 +195,40 @@ class FrameProcessor:
             if tracker.bpm_fft is not None:
                 result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
 
-            composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
-            composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
-            composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
+            if DEPRECATED is False:
+                composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
+                composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
+                composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
 
             if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
                 self.hr_charts.update_chart(tracker)
             index +=1
 
-        roi_composite.sum_ffts()
-        roi_composite.correlate_and_add(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
-        roi_composite.calculate_bpm_from_sum_of_ffts()
-        roi_composite.calculate_bpm_from_peaks_positive()
-        roi_composite.calculate_bpm_from_correlated_ffts()
+        if DEPRECATED is False:
+            roi_composite.sum_ffts()
+            roi_composite.correlate_and_add(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
+            roi_composite.calculate_bpm_from_sum_of_ffts()
+            roi_composite.calculate_bpm_from_peaks_positive()
+            roi_composite.calculate_bpm_from_correlated_ffts()
 
-        result_summary.update({"sumFFTs": self.__round(roi_composite.bpm_from_sum_of_ffts)})
-        result_summary.update({"correlatedPkPk": self.__round(roi_composite.bpm_from_correlated_peaks)})
-        result_summary.update({"correlatedFFTs": self.__round(roi_composite.bpm_from_correlated_ffts)})
+            result_summary.update({"sumFFTs": self.__round(roi_composite.bpm_from_sum_of_ffts)})
+            result_summary.update({"correlatedPkPk": self.__round(roi_composite.bpm_from_correlated_peaks)})
+            result_summary.update({"correlatedFFTs": self.__round(roi_composite.bpm_from_correlated_ffts)})
 
-        if roi_composite.bpm_from_sum_of_ffts is not None:
-            # TODO - Strategy to determine the 'best' heart rate
-            self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
+            if roi_composite.bpm_from_sum_of_ffts is not None:
+                # TODO - Strategy to determine the 'best' heart rate
+                self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
+            else:
+                self.pulse_rate_bpm = "Not available"
+
+            if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+                self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
+                self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
         else:
-            self.pulse_rate_bpm = "Not available"
-
-        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
-            self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
-            self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
+            if self.tracker_list[0].bpm_fft is not None:
+                self.pulse_rate_bpm = self.tracker_list[0].bpm_fft
+            else:
+                self.pulse_rate_bpm = "Not available"
 
         if self.config["csv_output"] is True:
             self.csv_reporter.report_results( result_summary)
@@ -232,8 +242,9 @@ class FrameProcessor:
 
     def __create_trackers(self):
         self.tracker_list.clear()
-        self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
-        self.tracker_list.append(ROIColor(self.logger, self.config, 'G', "green"))
+        if DEPRECATED is False:
+            self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
+        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'G', "green"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""

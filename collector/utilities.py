@@ -1,12 +1,15 @@
 import numpy as np
 from numpy.fft import fft, ifft, fft2, fftshift
 import uuid
+CONFIG_FILE = "../config.txt"
 
 
 def normalize_amplitude( data ):
     normalized_data = (data - np.min(data)) / np.ptp(data)
     return normalized_data
 
+def BRG_mean( BRG_array):
+    return np.mean(BRG_array,  axis=(0, 1))
 
 def correlate_and_sum(y1, y2):
     """Correlate two signals and return the summed difference"""
@@ -47,3 +50,9 @@ def __cross_correlation_using_fft(y1, y2):
 def get_machine_id():
     return str(uuid.getnode())
     # TODO - implement for raspberry pi
+
+def read_config():
+    """Read the config.txt file. This is formatted as a python dictionary"""
+    with open(CONFIG_FILE, 'r') as config:
+        dict_from_file = eval(config.read())
+    return dict_from_file

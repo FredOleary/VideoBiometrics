@@ -16,7 +16,7 @@
                                                                 # 'selectROI' for manual edit of ROI
 
     "pause_between_samples":False,                               # If True, the video will pause between Pulse estimations
-    "show_pulse_charts":False,                                   # if True then display pulse rate time series charts are displayed
+    "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
 
     "server_url":"http://localhost:3000/",                      # URL of remote server, registration
     "computer_name":"Friendly name for computer",               # User friendly name for computer

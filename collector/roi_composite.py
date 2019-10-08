@@ -74,7 +74,8 @@ class ROIComposite():
 
     def calculate_bpm_from_correlated_ffts(self):
         # Get the index of the maximum harmonic in the fft
-        freq_array = np.where(self.correlated_fft_amplitude == np.amax(self.correlated_fft_amplitude))
-        if len(freq_array) > 0:
-            # Use this index to get the corresponding frequency in beats/minute
-            self.bpm_from_correlated_ffts = (self.correlated_fft_frequency[freq_array[0]] * 60)[0]
+        if self.correlated_fft_amplitude is not None:
+            freq_array = np.where(self.correlated_fft_amplitude == np.amax(self.correlated_fft_amplitude))
+            if len(freq_array) > 0:
+                # Use this index to get the corresponding frequency in beats/minute
+                self.bpm_from_correlated_ffts = (self.correlated_fft_frequency[freq_array[0]] * 60)[0]
