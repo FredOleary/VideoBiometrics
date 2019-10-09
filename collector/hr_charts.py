@@ -69,21 +69,22 @@ class HRCharts:
                         color=(0.0, 0.0, 1.0))
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period,
-                        tracker.filtered_amplitude[:, 1],
-                        label='Green ICA Filtered data',
-                        color=(0.0, 1.0, 0.0))
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
                         tracker.filtered_amplitude[:, 2],
                         label='Red ICA Filtered data',
                         color=(1.0, 0.0, 0.0))
 
+                    self.chart_dictionary[tracker.name]["ax"][1].plot(
+                        tracker.time_period,
+                        tracker.filtered_amplitude[:, 1],
+                        label='Green ICA Filtered data',
+                        color=(0.0, 1.0, 0.0))
+
                 if tracker.peaks_positive_amplitude is not None:
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period[tracker.peaks_positive_amplitude],
-                        tracker.filtered_amplitude[tracker.peaks_positive_amplitude],
-                        'ro', ms=3, label='Dimension - positive peaks',
-                        color=(0.0, 0.0, 1.0))
+                        tracker.filtered_amplitude[:,1][tracker.peaks_positive_amplitude],
+                        'ro', ms=3, label='Positive peaks (Green)',
+                        color=(0.0, 0.5, 0.0))
 
                 self.chart_dictionary[tracker.name]["ax"][1].legend(loc='best')
 

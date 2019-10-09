@@ -147,7 +147,7 @@ class FrameProcessor:
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
-                    self.__update_results(video.get_frame_rate())
+                    self.__update_results(video.get_frame_rate(), video.actual_fps)
                     self.logger.info("FrameProcessor:process_feature_detect_then_track - Processing time: {} "
                                      "seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
@@ -169,12 +169,13 @@ class FrameProcessor:
                 break
         return
 
-    def __update_results(self, fps):
+    def __update_results(self, fps, actual_fps):
         """Process the the inter-fame changes, and filter results in both time and frequency domain """
         self.hr_estimate_count += 1
         result_summary ={
             "passCount": self.hr_estimate_count,
-            "trackers": {}
+            "trackers": {},
+            "fps": actual_fps
         }
         if DEPRECATED is False:
             roi_composite = ROIComposite(self.logger, self.tracker_list)
