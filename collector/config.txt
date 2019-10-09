@@ -9,7 +9,7 @@
     "resolution":{"width":640, "height":480},                   # (Does not apply to video files)
     "pulse_sample_frames":300,                                  # Number of video frames used to measure pulse rate
 
-    "feature_method":'forehead',                                # Options are:
+    "feature_method":'face',                                # Options are:
                                                                 # 'face' for face detect,
                                                                 # 'mouth' for mouth detect,
                                                                 # 'forehead' for forehead detection

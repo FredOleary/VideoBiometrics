@@ -37,6 +37,8 @@ class ROISelector:
                         found = True
                         break
                     else:
+                        x = x + int(w/5)
+                        w = int(3*w/5)
                         found = True
                         break
 

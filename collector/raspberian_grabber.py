@@ -97,9 +97,9 @@ class RaspberianGrabber:
                 if self.frame_number > self.number_of_frames and self.number_of_frames != -1:
                     self.paused = True
                     self.end_time = time.time()
+                    self.actual_fps = round(self.frame_number / (self.end_time - self.start_time), 2)
                     self.logger.info("Paused. Total frame count: {}, FPS: {}".format(
-                        self.total_frame_count,
-                        round(self.frame_number / (self.end_time - self.start_time), 2)))
+                        self.total_frame_count, self.actual_fps))
 
             self.rawCapture.truncate(0)
 
