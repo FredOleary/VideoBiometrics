@@ -119,7 +119,8 @@ class FrameProcessor:
                         cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (255, 0, 0), 1)
                         track_box = (x, y, w, h)
                         #self.tracker = cv2.TrackerCSRT_create()
-                        self.tracker = cv2.TrackerKCF_create()
+                        #self.tracker = cv2.TrackerKCF_create()
+                        self.tracker = cv2.TrackerMOSSE_create()
                         self.tracker.init(self.last_frame, track_box)
                         tracking = True
                     else:
