@@ -32,6 +32,7 @@ class RaspberianGrabber:
 
     def set_frame_rate(self, fps):
         self.camera.framerate = fps
+        self.self.actual_fps =fps
 
     def set_resolution(self, width, height):
         self.camera.resolution = (width, height)
