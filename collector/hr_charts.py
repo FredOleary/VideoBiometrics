@@ -23,7 +23,7 @@ class HRCharts:
         self.chart_dictionary[tracker.name]["ax"][0].clear()
         self.chart_dictionary[tracker.name]["ax"][1].clear()
         self.chart_dictionary[tracker.name]["ax"][2].clear()
-        if len(tracker.time_period) > 0:
+        if tracker.time_period is not None and len(tracker.time_period) > 0:
             try:
                 bpm_pk = "N/A" if tracker.bpm_pk_pk is None else str(round(tracker.bpm_pk_pk, 2))
                 bpm_fft = "N/A" if tracker.bpm_fft is None else str(round(tracker.bpm_fft, 2))

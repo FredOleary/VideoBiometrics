@@ -31,51 +31,54 @@ class ROIColorICA(ROITracker):
     def process(self, fps, low_pulse_bpm, high_pulse_bpm):
         start_time = time.time()
 
-        BGR_series = np.asarray( self.raw_amplitude)
-        blue_series = normalize_amplitude(BGR_series[:, 0])
-        green_series = normalize_amplitude(BGR_series[:, 1])
-        red_series = normalize_amplitude(BGR_series[:, 2])
-        self.logger.info("RBG Normalized at time {}".format( time.time() -start_time))
+        if len(self.raw_amplitude) > 0:
+            BGR_series = np.asarray( self.raw_amplitude)
+            blue_series = normalize_amplitude(BGR_series[:, 0])
+            green_series = normalize_amplitude(BGR_series[:, 1])
+            red_series = normalize_amplitude(BGR_series[:, 2])
+            self.logger.info("RBG Normalized at time {}".format( time.time() -start_time))
 
-        self.raw_amplitude = np.c_[blue_series, green_series, red_series]
-        ica = FastICA(n_components=3)
-        ICA_series = ica.fit_transform(self.raw_amplitude)
+            self.raw_amplitude = np.c_[blue_series, green_series, red_series]
+            ica = FastICA(n_components=3)
+            ICA_series = ica.fit_transform(self.raw_amplitude)
 
-        self.logger.info("ICA complete at time {}".format( time.time() -start_time))
+            self.logger.info("ICA complete at time {}".format( time.time() -start_time))
 
-        blue_xform = ICA_series[:, 0]
-        green_xform = ICA_series[:, 1]
-        red_xform = ICA_series[:, 2]
+            blue_xform = ICA_series[:, 0]
+            green_xform = ICA_series[:, 1]
+            red_xform = ICA_series[:, 2]
 
-        band_pass_filter = BandPassFilter()
-        blue_xform = band_pass_filter.time_filter2(blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
-        green_xform = band_pass_filter.time_filter2(green_xform, fps, low_pulse_bpm, high_pulse_bpm)
-        red_xform = band_pass_filter.time_filter2(red_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            band_pass_filter = BandPassFilter()
+            blue_xform = band_pass_filter.time_filter2(blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            green_xform = band_pass_filter.time_filter2(green_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            red_xform = band_pass_filter.time_filter2(red_xform, fps, low_pulse_bpm, high_pulse_bpm)
 
-        self.filtered_amplitude = np.c_[blue_xform, green_xform, red_xform]
-        height = .3 * np.max(green_xform)
-        peaks_positive, _ = signal.find_peaks(green_xform, height = height, threshold=None)
-        if len(peaks_positive) > 2:
-            self.peaks_positive_amplitude = peaks_positive;
-        else:
-            self.peaks_positive_amplitude = None
+            self.filtered_amplitude = np.c_[blue_xform, green_xform, red_xform]
+            height = .3 * np.max(green_xform)
+            peaks_positive, _ = signal.find_peaks(green_xform, height = height, threshold=None)
+            if len(peaks_positive) > 2:
+                self.peaks_positive_amplitude = peaks_positive;
+            else:
+                self.peaks_positive_amplitude = None
 
-        self.logger.info("ICA filtered at time {}".format(time.time() - start_time))
+            self.logger.info("ICA filtered at time {}".format(time.time() - start_time))
 
-        fft_filter = FFTFilter()
-        fft_frequency_blue_xform, fft_amplitude_blue_xform = fft_filter.fft_filter2(
-            blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
-        fft_frequency_green_xform, fft_amplitude_green_xform = fft_filter.fft_filter2(
-            green_xform, fps, low_pulse_bpm, high_pulse_bpm)
-        fft_frequency_red_xform, fft_amplitude_red_xform = fft_filter.fft_filter2(
-            red_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            fft_filter = FFTFilter()
+            fft_frequency_blue_xform, fft_amplitude_blue_xform = fft_filter.fft_filter2(
+                blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            fft_frequency_green_xform, fft_amplitude_green_xform = fft_filter.fft_filter2(
+                green_xform, fps, low_pulse_bpm, high_pulse_bpm)
+            fft_frequency_red_xform, fft_amplitude_red_xform = fft_filter.fft_filter2(
+                red_xform, fps, low_pulse_bpm, high_pulse_bpm)
 
-        self.fft_amplitude = fft_amplitude_blue_xform + fft_amplitude_green_xform + fft_amplitude_red_xform
+            self.fft_amplitude = fft_amplitude_blue_xform + fft_amplitude_green_xform + fft_amplitude_red_xform
 
-        self.fft_frequency = fft_frequency_blue_xform
+            self.fft_frequency = fft_frequency_blue_xform
 
-        self.create_time_period(fps)
-        self.logger.info("FFT completed at time {}".format(time.time() - start_time))
+            self.create_time_period(fps)
+            self.logger.info("FFT completed at time {}".format(time.time() - start_time))
+
+        self.logger.info("Process completed at time {}".format(time.time() - start_time))
 
 
     def __getAverage(self, x, y, w, h, source_image):

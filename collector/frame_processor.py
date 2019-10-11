@@ -125,16 +125,18 @@ class FrameProcessor:
                         self.__start_capture(video)
                 else:
                     # Update tracker
-                    ok, bbox = self.tracker.update(self.last_frame)
+                    # ok, bbox = self.tracker.update(self.last_frame)
+                    ok=True
                     if ok:
-                        x = int(bbox[0])
-                        y = int(bbox[1])
-                        w = int(bbox[2])
-                        h = int(bbox[3])
-                        for tracker in self.tracker_list:
-                            tracker.update(x, y, w, h, self.last_frame)
-                        if self.config["headless"] is False:
-                            cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (225, 0, 0), 1)
+                        ok=True
+                        # x = int(bbox[0])
+                        # y = int(bbox[1])
+                        # w = int(bbox[2])
+                        # h = int(bbox[3])
+                        # for tracker in self.tracker_list:
+                        #     tracker.update(x, y, w, h, self.last_frame)
+                        # if self.config["headless"] is False:
+                        #     cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (225, 0, 0), 1)
                     else:
                         self.logger.warning("Tracker failed")
                         self.__start_capture(video)
