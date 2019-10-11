@@ -118,9 +118,17 @@ class FrameProcessor:
 
                         cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (255, 0, 0), 1)
                         track_box = (x, y, w, h)
+                        self.logger.info("Using {} tracker".format(self.config["opencv_tracker"]))
+                        if self.config["opencv_tracker"] == "CSRT":
+                            self.tracker = cv2.TrackerCSRT_create()
+                        elif self.config["opencv_tracker"] == "MOSSE":
+                            self.tracker = cv2.TrackerMOSSE_create()
+                        else:
+                            self.tracker = cv2.TrackerKCF_create()
+
                         #self.tracker = cv2.TrackerCSRT_create()
                         #self.tracker = cv2.TrackerKCF_create()
-                        self.tracker = cv2.TrackerMOSSE_create()
+                        #self.tracker = cv2.TrackerMOSSE_create()
                         self.tracker.init(self.last_frame, track_box)
                         tracking = True
                     else:
@@ -150,11 +158,10 @@ class FrameProcessor:
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
                     self.__update_results(video.get_frame_rate(), video.actual_fps)
-                    self.logger.info("FrameProcessor:process_feature_detect_then_track - Processing time: {} "
-                                     "seconds. FPS: {}. Frame count: {}".
+                    self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
-                                            round(self.frame_number / (time.time() -
-                                                                       self.start_process_time), 2), self.frame_number))
+                                            round(self.frame_number / (time.time() - self.start_process_time), 2),
+                                            self.frame_number))
                     if self.config["pause_between_samples"] and self.config["headless"] is False :
                         input("Hit enter to continue")
                     self.__start_capture(video)
