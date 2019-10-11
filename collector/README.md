@@ -20,6 +20,8 @@ The **collector** estimates pulse rate from a video stream by measuring face mic
     2. `pip install matplotlib`
     3. `pip install scipy`
     4. `pip install requests`
+    5. `pip install sklearn`
+    
     
 ### For the raspberry pi do the additional:
 1.`sudo apt-get install at-spi2-core` (remove errors about “org.freedesktop.DBus.Error)
