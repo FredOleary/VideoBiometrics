@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from sklearn.decomposition import FastICA, PCA
 from scipy import signal
 from roi_tracker import ROITracker
@@ -28,14 +29,19 @@ class ROIColorICA(ROITracker):
                 self.raw_amplitude.append( self.raw_amplitude[len(self.raw_amplitude)-1])
 
     def process(self, fps, low_pulse_bpm, high_pulse_bpm):
+        start_time = time.time()
+
         BGR_series = np.asarray( self.raw_amplitude)
         blue_series = normalize_amplitude(BGR_series[:, 0])
         green_series = normalize_amplitude(BGR_series[:, 1])
         red_series = normalize_amplitude(BGR_series[:, 2])
+        self.logger.info("RBG Normalized at time {}".format( time.time() -start_time))
 
         self.raw_amplitude = np.c_[blue_series, green_series, red_series]
         ica = FastICA(n_components=3)
         ICA_series = ica.fit_transform(self.raw_amplitude)
+
+        self.logger.info("ICA complete at time {}".format( time.time() -start_time))
 
         blue_xform = ICA_series[:, 0]
         green_xform = ICA_series[:, 1]
@@ -54,6 +60,8 @@ class ROIColorICA(ROITracker):
         else:
             self.peaks_positive_amplitude = None
 
+        self.logger.info("ICA filtered at time {}".format(time.time() - start_time))
+
         fft_filter = FFTFilter()
         fft_frequency_blue_xform, fft_amplitude_blue_xform = fft_filter.fft_filter2(
             blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
@@ -67,6 +75,8 @@ class ROIColorICA(ROITracker):
         self.fft_frequency = fft_frequency_blue_xform
 
         self.create_time_period(fps)
+        self.logger.info("FFT completed at time {}".format(time.time() - start_time))
+
 
     def __getAverage(self, x, y, w, h, source_image):
         # If (x1,y1) and (x2,y2) are the two opposite vertices of mat
