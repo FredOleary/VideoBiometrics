@@ -31,9 +31,6 @@ class FrameGrabber:
     def get_frame_rate(self):
         return self.capture.get(self.cv2.CAP_PROP_FPS)
 
-    def get_actual_frame_rate(self):
-        return self.total_frame_count / (time.time() - self.start_time)
-
     def get_resolution(self):
         width = self.capture.get(self.cv2.CAP_PROP_FRAME_WIDTH)
         height = self.capture.get(self.cv2.CAP_PROP_FRAME_HEIGHT)
@@ -83,6 +80,9 @@ class FrameGrabber:
         self.paused = False
         self.start_time = time.time()
 
+    def get_actual_fps(self):
+        return round(self.frame_number / (self.end_time - self.start_time), 2)
+
 
     def __update(self):
         self.total_frame_count = 0
@@ -96,9 +96,9 @@ class FrameGrabber:
                     if self.frame_number >= self.number_of_frames and self.number_of_frames != -1:
                         self.paused = True
                         self.end_time = time.time()
-                        self.actual_fps = round(self.frame_number / (self.end_time - self.start_time), 2)
+                        fps = round(self.frame_number / (self.end_time - self.start_time), 2)
                         self.logger.info("Paused. Total frame count: {}, FPS: {}".format(
-                            self.total_frame_count, self.actual_fps))
+                            self.total_frame_count, fps))
 
                 else:
                     if not self.video_ended:

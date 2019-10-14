@@ -1,7 +1,7 @@
 {
     "headless":False,                                            # if True, all UI is suppressed
     "csv_output":False,                                         # if TRUE a csv summary of heart rate is produced
-    "http_output":False,                                         # if TRUE, heart rate data is sent to a remote server
+    "http_output":True,                                         # if TRUE, heart rate data is sent to a remote server
 
     "low_pulse_bpm":42,                                         # low pulse rate in beats per minute
     "high_pulse_bpm":150,                                       # high pulse rate in beats per minute
@@ -9,7 +9,7 @@
     "resolution":{"width":640, "height":480},                   # (Does not apply to video files)
     "pulse_sample_frames":300,                                  # Number of video frames used to measure pulse rate
 
-    "feature_method":'face',                                # Options are:
+    "feature_method":'forehead',                                # Options are:
                                                                 # 'face' for face detect,
                                                                 # 'mouth' for mouth detect,
                                                                 # 'forehead' for forehead detection
@@ -17,8 +17,8 @@
     "opencv_tracker":"KCF",                                     # Options are: (see https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/)
                                                                 # CSRT - Best but slowest, KCF medium performance/speed MOSSE, fastest
 
-    "pause_between_samples":True,                               # If True, the video will pause between Pulse estimations
-    "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
+    "pause_between_samples":False,                               # If True, the video will pause between Pulse estimations
+    "show_pulse_charts":False,                                   # if True then display pulse rate time series charts are displayed
 
     "server_url":"http://localhost:3000/",                      # URL of remote server, registration
     "computer_name":"Friendly name for computer",               # User friendly name for computer

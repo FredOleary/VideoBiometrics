@@ -157,7 +157,7 @@ class FrameProcessor:
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
-                    self.__update_results(video.get_frame_rate(), video.actual_fps)
+                    self.__update_results(video.get_frame_rate(), video.get_actual_fps())
                     self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
                                             round(self.frame_number / (time.time() - self.start_process_time), 2),
