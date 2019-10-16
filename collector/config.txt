@@ -14,7 +14,7 @@
                                                                 # 'mouth' for mouth detect,
                                                                 # 'forehead' for forehead detection
                                                                 # 'selectROI' for manual edit of ROI
-    "opencv_tracker":"KCF",                                     # Options are: (see https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/)
+    "opencv_tracker":"MOSSE",                                     # Options are: (see https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/)
                                                                 # CSRT - Best but slowest, KCF medium performance/speed MOSSE, fastest
 
     "pause_between_samples":False,                               # If True, the video will pause between Pulse estimations

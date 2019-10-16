@@ -13,15 +13,14 @@ class CSVReporter:
             csv_header = "Pass count,"
             for key in results["trackers"]:
                 csv_header = csv_header + "{},".format(key)
-            csv_header = csv_header + "Sum of FFTs, Correlated Pk-Pk, Correlated FFTs\n"
+            csv_header = csv_header + "\n"
             self.write(csv_header)
 
         csv_line = '{},'.format(results["passCount"])
         for value in results["trackers"].values():
             csv_line = csv_line + "{},".format(self.__round(value))
 
-        csv_line = csv_line + "{}, {}, {}\n".format(
-            results["sumFFTs"], results["correlatedPkPk"], results["correlatedFFTs"])
+        csv_line = csv_line + "\n"
         self.write(csv_line)
 
     def write(self, csv_line):
