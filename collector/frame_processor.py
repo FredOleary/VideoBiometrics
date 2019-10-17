@@ -68,7 +68,7 @@ class FrameProcessor:
                          self.config["resolution"]["height"],
                          round(self.config["video_fps"])))
 
-            self.__process_feature_detect_then_track(video)
+            self.__process_feature_detect_then_track(video, video_file_or_camera)
 
             cv2.destroyAllWindows()
             self.csv_reporter.close()
@@ -85,7 +85,7 @@ class FrameProcessor:
         self.start_process_time = time.time()
         video.start_capture(self.config["pulse_sample_frames"]+1)
 
-    def __process_feature_detect_then_track(self, video):
+    def __process_feature_detect_then_track(self, video, video_file_or_camera):
         """Read video frame by frame and collect changes to the ROI. After sufficient
         frames have been collected, analyse the results"""
         tracking = False
@@ -157,7 +157,8 @@ class FrameProcessor:
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
-                    self.__update_results(video.get_frame_rate(), video.get_actual_fps())
+                    fps = video.get_actual_fps() if video_file_or_camera  == 0 else video.fps
+                    self.__update_results(video.get_frame_rate(), fps)
                     self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
                                             round(self.frame_number / (time.time() - self.start_process_time), 2),
