@@ -20,7 +20,22 @@ The **collector** estimates pulse rate from a video stream by measuring face mic
     2. `pip install matplotlib`
     3. `pip install scipy`
     4. `pip install requests`
-    
+    5. `pip install sklearn`
+
+The following C++ libraries may need to be installed, (as shown below)\    
+`sudo apt-get install libhdf5-dev`\
+`sudo apt-get install libhdf5-serial-dev`\
+`sudo apt-get install libcblas-dev`\
+`sudo apt-get install libatlas-base-dev`\
+`sudo apt-get install libjasper-dev`\
+`sudo apt-get install libqtgui4`\ 
+`sudo apt-get install libqt4-test`\
+
+Depending on the versions of the various components installed and the raspberry Pi installation, resovle import errors such as:\
+`ImportError: libhdf5_serial.so.100: cannot open shared object file: No such file or directory`\
+by installing the appropriate library
+
+
 ### For the raspberry pi do the additional:
 1.`sudo apt-get install at-spi2-core` (remove errors about “org.freedesktop.DBus.Error)
 

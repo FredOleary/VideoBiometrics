@@ -13,11 +13,11 @@ from roi_composite import ROIComposite
 from hr_charts import HRCharts
 from reporters.csv_reporter import CSVReporter
 from reporters.http_reporter import HTTPReporter
-
+from roi_color_ica import ROIColorICA
 
 SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
-
+DEPRECATED = True
 
 # noinspection PyUnresolvedReferences
 class FrameProcessor:
@@ -68,7 +68,7 @@ class FrameProcessor:
                          self.config["resolution"]["height"],
                          round(self.config["video_fps"])))
 
-            self.__process_feature_detect_then_track(video)
+            self.__process_feature_detect_then_track(video, video_file_or_camera)
 
             cv2.destroyAllWindows()
             self.csv_reporter.close()
@@ -85,19 +85,19 @@ class FrameProcessor:
         self.start_process_time = time.time()
         video.start_capture(self.config["pulse_sample_frames"]+1)
 
-    def __process_feature_detect_then_track(self, video):
+    def __process_feature_detect_then_track(self, video, video_file_or_camera):
         """Read video frame by frame and collect changes to the ROI. After sufficient
         frames have been collected, analyse the results"""
         tracking = False
 
         self.__start_capture(video)
-        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+        if self.config["headless"] is False:
             self.hr_charts = HRCharts(self.logger)
             for tracker in self.tracker_list:
                 self.hr_charts.add_chart(tracker.name)
-
-            self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts = 2)
-            self.hr_charts.add_chart(CORRELATED_SUM, sub_charts = 2)
+            if DEPRECATED is False:
+                self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts = 2)
+                self.hr_charts.add_chart(CORRELATED_SUM, sub_charts = 2)
 
         while video.is_opened():
             ret, frame = video.read_frame()
@@ -118,7 +118,17 @@ class FrameProcessor:
 
                         cv2.rectangle(self.last_frame, (x, y), (x + w, y + h), (255, 0, 0), 1)
                         track_box = (x, y, w, h)
-                        self.tracker = cv2.TrackerCSRT_create()
+                        self.logger.info("Using {} tracker".format(self.config["opencv_tracker"]))
+                        if self.config["opencv_tracker"] == "CSRT":
+                            self.tracker = cv2.TrackerCSRT_create()
+                        elif self.config["opencv_tracker"] == "MOSSE":
+                            self.tracker = cv2.TrackerMOSSE_create()
+                        else:
+                            self.tracker = cv2.TrackerKCF_create()
+
+                        #self.tracker = cv2.TrackerCSRT_create()
+                        #self.tracker = cv2.TrackerKCF_create()
+                        #self.tracker = cv2.TrackerMOSSE_create()
                         self.tracker.init(self.last_frame, track_box)
                         tracking = True
                     else:
@@ -147,43 +157,47 @@ class FrameProcessor:
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
-                    self.__update_results(video.get_frame_rate())
-                    self.logger.info("FrameProcessor:process_feature_detect_then_track - Processing time: {} "
-                                     "seconds. FPS: {}. Frame count: {}".
+                    fps = video.get_actual_fps() if video_file_or_camera  == 0 else video.fps
+                    self.__update_results(video.get_frame_rate(), fps)
+                    self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
-                                            round(self.frame_number / (time.time() -
-                                                                       self.start_process_time), 2), self.frame_number))
+                                            round(self.frame_number / (time.time() - self.start_process_time), 2),
+                                            self.frame_number))
                     if self.config["pause_between_samples"] and self.config["headless"] is False :
                         input("Hit enter to continue")
                     self.__start_capture(video)
                     tracking = False
                 if self.config["headless"] is False:
-                    # Press Q on keyboard to  exit
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
-                        break
+                    # Allow UI
+                    key = cv2.waitKey(10) & 0xFF
+                    if key ==  ord('q'):
+                        break               # Exit
+                    elif key == ord('g'):
+                        self.config["show_pulse_charts"] = True if self.config["show_pulse_charts"] == False else True
             else:
                 self.logger.info("Video stream ended")
                 break
         return
 
-    def __update_results(self, fps):
+    def __update_results(self, fps, actual_fps):
         """Process the the inter-fame changes, and filter results in both time and frequency domain """
         self.hr_estimate_count += 1
         result_summary ={
             "passCount": self.hr_estimate_count,
-            "trackers": {}
+            "trackers": {},
+            "fps": actual_fps
         }
+        if DEPRECATED is False:
+            roi_composite = ROIComposite(self.logger, self.tracker_list)
 
-        roi_composite = ROIComposite(self.logger, self.tracker_list)
-
-        composite_data_summ_fft = {
-            "bpm_fft": None,
-            "name": SUM_FTT_COMPOSITE,
-        }
+            composite_data_summ_fft = {
+                "bpm_fft": None,
+                "name": SUM_FTT_COMPOSITE,
+            }
 
         index = 1;
         for tracker in self.tracker_list:
-            tracker.process(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
+            tracker.process(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
             tracker.calculate_bpm_from_peaks_positive()
             tracker.calculate_bpm_from_fft()
 
@@ -192,33 +206,40 @@ class FrameProcessor:
             if tracker.bpm_fft is not None:
                 result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
 
-            composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
-            composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
-            composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
+            if DEPRECATED is False:
+                composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
+                composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
+                composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
 
             if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
                 self.hr_charts.update_chart(tracker)
             index +=1
 
-        roi_composite.sum_ffts()
-        roi_composite.correlate_and_add(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
-        roi_composite.calculate_bpm_from_sum_of_ffts()
-        roi_composite.calculate_bpm_from_peaks_positive()
-        roi_composite.calculate_bpm_from_correlated_ffts()
+        if DEPRECATED is False:
+            roi_composite.sum_ffts()
+            roi_composite.correlate_and_add(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
+            roi_composite.calculate_bpm_from_sum_of_ffts()
+            roi_composite.calculate_bpm_from_peaks_positive()
+            roi_composite.calculate_bpm_from_correlated_ffts()
 
-        result_summary.update({"sumFFTs": self.__round(roi_composite.bpm_from_sum_of_ffts)})
-        result_summary.update({"correlatedPkPk": self.__round(roi_composite.bpm_from_correlated_peaks)})
-        result_summary.update({"correlatedFFTs": self.__round(roi_composite.bpm_from_correlated_ffts)})
+            result_summary.update({"sumFFTs": self.__round(roi_composite.bpm_from_sum_of_ffts)})
+            result_summary.update({"correlatedPkPk": self.__round(roi_composite.bpm_from_correlated_peaks)})
+            result_summary.update({"correlatedFFTs": self.__round(roi_composite.bpm_from_correlated_ffts)})
 
-        if roi_composite.bpm_from_sum_of_ffts is not None:
-            # TODO - Strategy to determine the 'best' heart rate
-            self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
+            if roi_composite.bpm_from_sum_of_ffts is not None:
+                # TODO - Strategy to determine the 'best' heart rate
+                self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
+            else:
+                self.pulse_rate_bpm = "Not available"
+
+            if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
+                self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
+                self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
         else:
-            self.pulse_rate_bpm = "Not available"
-
-        if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
-            self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
-            self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
+            if self.tracker_list[0].bpm_fft is not None:
+                self.pulse_rate_bpm = self.tracker_list[0].bpm_fft
+            else:
+                self.pulse_rate_bpm = "Not available"
 
         if self.config["csv_output"] is True:
             self.csv_reporter.report_results( result_summary)
@@ -232,8 +253,9 @@ class FrameProcessor:
 
     def __create_trackers(self):
         self.tracker_list.clear()
-        self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
-        self.tracker_list.append(ROIColor(self.logger, self.config, 'G', "green"))
+        if DEPRECATED is False:
+            self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
+        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'G', "green"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""

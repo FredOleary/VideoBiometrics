@@ -23,7 +23,7 @@ class HRCharts:
         self.chart_dictionary[tracker.name]["ax"][0].clear()
         self.chart_dictionary[tracker.name]["ax"][1].clear()
         self.chart_dictionary[tracker.name]["ax"][2].clear()
-        if len(tracker.time_period) > 0:
+        if tracker.time_period is not None and len(tracker.time_period) > 0:
             try:
                 bpm_pk = "N/A" if tracker.bpm_pk_pk is None else str(round(tracker.bpm_pk_pk, 2))
                 bpm_fft = "N/A" if tracker.bpm_fft is None else str(round(tracker.bpm_fft, 2))
@@ -33,30 +33,58 @@ class HRCharts:
 
                 self.chart_dictionary[tracker.name]["ax"][0].plot(
                     tracker.time_period,
-                    tracker.raw_amplitude,
-                    label='Dimension changes - raw data')
+                    tracker.raw_amplitude[:,0],
+                    label = 'Blue Raw data',
+                    color = (0.0, 0.0, 1.0))
+                self.chart_dictionary[tracker.name]["ax"][0].plot(
+                    tracker.time_period,
+                    tracker.raw_amplitude[:,1],
+                    label = 'Green Raw data',
+                    color = (0.0, 1.0, 0.0))
+                self.chart_dictionary[tracker.name]["ax"][0].plot(
+                    tracker.time_period,
+                    tracker.raw_amplitude[:,2],
+                    label = 'Red Raw data',
+                    color = (1.0, 0.0, 0.0))
+
+                    #label=['Raw data Blue', 'Raw data Green', 'Raw data Red'])
+#                self.chart_dictionary[tracker.name]["ax"][0].legend(['Raw data Blue', 'Raw data Green', 'Raw data Red'])
+#                self.chart_dictionary[tracker.name]["ax"][0].color([(0.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0)])
+
+                self.chart_dictionary[tracker.name]["ax"][0].legend(loc='best')
 
                 if tracker.de_trended_amplitude is not None:
                     self.chart_dictionary[tracker.name]["ax"][0].plot(
                         tracker.time_period,
                         tracker.de_trended_amplitude,
                         label='Dimension changes - de-trended',
+                        color=(0.0, 1.0, 0.0) )
+
+
+                if tracker.filtered_amplitude is not None:
+                    self.chart_dictionary[tracker.name]["ax"][1].plot(
+                        tracker.time_period,
+                        tracker.filtered_amplitude[:, 0],
+                        label='Blue ICA Filtered data',
+                        color=(0.0, 0.0, 1.0))
+                    self.chart_dictionary[tracker.name]["ax"][1].plot(
+                        tracker.time_period,
+                        tracker.filtered_amplitude[:, 2],
+                        label='Red ICA Filtered data',
+                        color=(1.0, 0.0, 0.0))
+
+                    self.chart_dictionary[tracker.name]["ax"][1].plot(
+                        tracker.time_period,
+                        tracker.filtered_amplitude[:, 1],
+                        label='Green ICA Filtered data',
                         color=(0.0, 1.0, 0.0))
-
-                self.chart_dictionary[tracker.name]["ax"][0].legend(loc='best')
-
-                self.chart_dictionary[tracker.name]["ax"][1].plot(
-                    tracker.time_period,
-                    tracker.filtered_amplitude,
-                    color=(1.0, 0.0, 0.0),
-                    label='Dimension changes - filtered')
 
                 if tracker.peaks_positive_amplitude is not None:
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period[tracker.peaks_positive_amplitude],
-                        tracker.filtered_amplitude[tracker.peaks_positive_amplitude],
-                        'ro', ms=3, label='Dimension - positive peaks',
-                        color=(0.0, 0.0, 1.0))
+                        tracker.filtered_amplitude[:,1][tracker.peaks_positive_amplitude],
+                        'ro', ms=3, label='Positive peaks (Green)',
+                        color=(0.0, 0.5, 0.0))
 
                 self.chart_dictionary[tracker.name]["ax"][1].legend(loc='best')
 

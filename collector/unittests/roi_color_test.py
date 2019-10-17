@@ -1,14 +1,19 @@
 import unittest
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
+
 from roi_color import ROIColor
 from hr_charts import HRCharts
-
+from utilities import read_config
 
 class TestROIColor(unittest.TestCase):
 
     def test_roi_color(self):
-        hr_chart = HRCharts()
+        logger = logging.getLogger("foo")
+        config = read_config()
+
+        hr_chart = HRCharts(logger)
         hr_chart.add_chart("ColorChart")
 
         fps = 30.0  # frames/second (sample rate)
@@ -27,7 +32,7 @@ class TestROIColor(unittest.TestCase):
         rgb_array[..., 1] = .5 * 256
         rgb_array[..., 2] = .1 * 256
 
-        roi_color = ROIColor( 'G', 'ColorChart')
+        roi_color = ROIColor( logger, config, 'G', 'ColorChart')
 
         roi_color.initialize(10,10, 100, 100, rgb_array)
 

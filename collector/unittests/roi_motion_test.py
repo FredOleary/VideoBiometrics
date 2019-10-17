@@ -3,12 +3,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from roi_motion import ROIMotion
 from hr_charts import HRCharts
-
+import logging
+from utilities import read_config
 
 class TestROIMotion(unittest.TestCase):
 
     def test_roi_motion(self):
-        hr_chart = HRCharts()
+        logger = logging.getLogger("foo")
+        config = read_config()
+
+        hr_chart = HRCharts(logger)
         hr_chart.add_chart("MotionChart")
 
         fps = 30.0  # frames/second (sample rate)
@@ -22,7 +26,7 @@ class TestROIMotion(unittest.TestCase):
         y = trend + np.sin(pulse_rate_seconds * 2.0 * np.pi * x_time) + .3 * np.sin(
             pulse_rate_seconds * 3 * 2.0 * np.pi * x_time)
 
-        roi_motion = ROIMotion('Y', 'MotionChart')
+        roi_motion = ROIMotion( logger, config, 'Y', 'MotionChart')
 
         roi_motion.initialize(0, y[0], 0, 0, None)
 

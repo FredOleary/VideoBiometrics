@@ -31,7 +31,20 @@ const mapStateToProps = state => {
 									max: 200,
 									stepSize: 20,
                                 }
-                             }],
+                             },{
+                                id:'B',
+                                position:'right',
+                                scaleLabel:{
+                                    display:true,
+                                    labelString:"Frame rate",
+                                    fontColor: "red"
+                                },
+                               ticks: {
+                                    beginAtZero:true,
+									max: 100,
+									stepSize: 10,
+                                }
+                            }],
                             xAxes: [{
                                 ticks: {
                                     autoSkip: true,
