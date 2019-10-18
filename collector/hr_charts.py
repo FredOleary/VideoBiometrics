@@ -31,25 +31,30 @@ class HRCharts:
                 self.chart_dictionary[tracker.name]["fig"].suptitle("{} BPM(pk-pk) {}. BPM(fft) {}".format(
                     tracker.name, bpm_pk, bpm_fft), fontsize=14)
 
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,0],
-                    label = 'Blue Raw data',
-                    color = (0.0, 0.0, 1.0))
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,1],
-                    label = 'Green Raw data',
-                    color = (0.0, 1.0, 0.0))
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,2],
-                    label = 'Red Raw data',
-                    color = (1.0, 0.0, 0.0))
+                if len(tracker.raw_amplitude.shape) == 1:
+                    self.chart_dictionary[tracker.name]["ax"][0].plot(
+                        tracker.time_period,
+                        tracker.raw_amplitude,
+                        label = 'Green Raw data',
+                        color = (0.0, 1.0, 0.0))
 
-                    #label=['Raw data Blue', 'Raw data Green', 'Raw data Red'])
-#                self.chart_dictionary[tracker.name]["ax"][0].legend(['Raw data Blue', 'Raw data Green', 'Raw data Red'])
-#                self.chart_dictionary[tracker.name]["ax"][0].color([(0.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0)])
+                else:
+                    self.chart_dictionary[tracker.name]["ax"][0].plot(
+                        tracker.time_period,
+                        tracker.raw_amplitude[:,0],
+                        label = 'Blue Raw data',
+                        color = (0.0, 0.0, 1.0))
+                    self.chart_dictionary[tracker.name]["ax"][0].plot(
+                        tracker.time_period,
+                        tracker.raw_amplitude[:,1],
+                        label = 'Green Raw data',
+                        color = (0.0, 1.0, 0.0))
+                    self.chart_dictionary[tracker.name]["ax"][0].plot(
+                        tracker.time_period,
+                        tracker.raw_amplitude[:,2],
+                        label = 'Red Raw data',
+                        color = (1.0, 0.0, 0.0))
+
 
                 self.chart_dictionary[tracker.name]["ax"][0].legend(loc='best')
 
@@ -60,28 +65,40 @@ class HRCharts:
                         label='Dimension changes - de-trended',
                         color=(0.0, 1.0, 0.0) )
 
-                if tracker.filtered_amplitude is not None:
+                if len(tracker.raw_amplitude.shape) == 1:
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period,
-                        tracker.filtered_amplitude[:, 0],
-                        label='Blue ICA Filtered data',
-                        color=(0.0, 0.0, 1.0))
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
-                        tracker.filtered_amplitude[:, 2],
-                        label='Red ICA Filtered data',
-                        color=(1.0, 0.0, 0.0))
-
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
-                        tracker.filtered_amplitude[:, 1],
+                        tracker.filtered_amplitude,
                         label='Green ICA Filtered data',
                         color=(0.0, 1.0, 0.0))
 
+                else:
+                    if tracker.filtered_amplitude is not None:
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude[:, 0],
+                            label='Blue ICA Filtered data',
+                            color=(0.0, 0.0, 1.0))
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude[:, 2],
+                            label='Red ICA Filtered data',
+                            color=(1.0, 0.0, 0.0))
+
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude[:, 1],
+                            label='Green ICA Filtered data',
+                            color=(0.0, 1.0, 0.0))
+
+                if len(tracker.raw_amplitude.shape) == 1:
+                    filtered_amp = tracker.filtered_amplitude
+                else:
+                    filtered_amp = tracker.filtered_amplitude[:, 1]
                 if tracker.peaks_positive_amplitude is not None:
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period[tracker.peaks_positive_amplitude],
-                        tracker.filtered_amplitude[:,1][tracker.peaks_positive_amplitude],
+                        filtered_amp[tracker.peaks_positive_amplitude],
                         'ro', ms=3, label='Positive peaks (Green)',
                         color=(0.0, 0.5, 0.0))
 
