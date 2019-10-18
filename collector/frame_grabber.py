@@ -5,7 +5,7 @@ import queue
 
 class FrameGrabber:
 
-    def __init__(self, cv2, fps, width, height, logger):
+    def __init__(self, cv2, fps, width, height, logger, video_file_or_camera):
         self.cv2 = cv2
         self.fps = fps
         self.width = width
@@ -20,6 +20,10 @@ class FrameGrabber:
         self.total_frame_count = 0
         self.video_ended = False
         self.is_live_stream = False
+        if video_file_or_camera == 0:
+            self.video_file_or_camera_name = "camera"
+        else:
+            self.video_file_or_camera_name = video_file_or_camera
 
     def set_frame_rate(self, fps):
         self.capture.set(self.cv2.CAP_PROP_FPS, fps)

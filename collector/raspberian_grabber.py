@@ -14,7 +14,7 @@ except ImportError:
 
 
 class RaspberianGrabber:
-    def __init__(self, cv2, fps, width, height, logger):
+    def __init__(self, cv2, fps, width, height, logger, video_file_or_camera):
         self.camera = None
         self.fps = fps
         self.width = width
@@ -29,6 +29,7 @@ class RaspberianGrabber:
         self.start_time = time.time()
         self.total_frame_count = 0
         self.is_live_stream = True # This camera is used only for live video
+        self.video_file_or_camera_name = "camera"
 
     def set_frame_rate(self, fps):
         self.camera.framerate = fps

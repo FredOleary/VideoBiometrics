@@ -18,6 +18,7 @@ class ROITracker:
         self.bpm_pk_pk = None
         self.bpm_fft = None
         self.base_value = None
+        self.bpm_fft_confidence = 100
 
     def initialize(self, initial_value):
         self.base_value = initial_value
@@ -61,6 +62,18 @@ class ROITracker:
             freqArray = np.where(self.fft_amplitude == np.amax(self.fft_amplitude))
             if len(freqArray) > 0:
                 self.bpm_fft = (self.fft_frequency[freqArray[0]] * 60)[0]
+                # Calculate confidence, as a percentage, of the best BPM calculation
+                self.bpm_fft_confidence = 100
+                best = self.fft_amplitude[freqArray[0]]
+                bestIndex = freqArray[0]
+                self.fft_amplitude[freqArray[0]] = 0
+                freqArray = np.where(self.fft_amplitude == np.amax(self.fft_amplitude))
+                if len(freqArray) > 0:
+                    next = self.fft_amplitude[freqArray[0]]
+                    self.bpm_fft_confidence = 100 - (next[0]/best[0] * 100)
+
+                self.fft_amplitude[bestIndex] = best
+                print("foo")
 
     def fft_filter(self, fps, low_pulse_bpm, high_pulse_bpm):
         """Note this requires that the raw data is previously filtered"""

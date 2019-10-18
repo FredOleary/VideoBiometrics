@@ -8,6 +8,7 @@ router.post('/', function(req, res, next) {
   return Device.findOrCreate({
     where: {
       device:      req.body.device,
+      video:       req.body.video
     },
     defaults:{
       description:  req.body.description,

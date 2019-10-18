@@ -10,12 +10,12 @@ class HTTPReporter :
 
     def report_results(self, results):
         if results["passCount"] == 1:
-            self.register()
+            self.register(results["video_name"])
 
         self.send_heart_rate(results)
 
-    def register(self):
-        registration_info = {"device":get_machine_id()}
+    def register(self, video_name):
+        registration_info = {"device":get_machine_id(), "video":video_name}
         try:
             if "computer_name" in self.config:
                 registration_info.update({"name":socket.gethostname()})

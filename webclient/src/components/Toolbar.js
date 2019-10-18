@@ -20,7 +20,7 @@ const toolbar = {
 };
 
 const deviceSelector = {
-    width:300,
+    width:500,
     backgroundColor: 'rgb(200,200,200)',
     marginLeft:'30px',
     marginTop:'auto',
@@ -73,7 +73,7 @@ class ConnectedToolbar extends Component{
         return (
             <div style = {toolbar} >
                 <div style ={deviceSelector}>
-                    <Select options={this.props.devices} onChange={this.onSelectChange.bind(this)} />
+                    <Select options={this.getDeviceAndVideo()} onChange={this.onSelectChange.bind(this)} />
                 </div>
                 <div style={refreshButton}>
                     <button disabled ={this.isSelectedEmpty()} onClick={this.onRefresh.bind(this)} style ={{height:30, fontSize:'16px'}}>Refresh</button>
@@ -83,6 +83,9 @@ class ConnectedToolbar extends Component{
                 </div>
             </div>
         )
+    }
+    getDeviceAndVideo(){
+        return this.props.devices;
     }
     onSelectChange( selectedItem ){
         this.selectedItem = selectedItem;

@@ -20,7 +20,7 @@ function fetchDevices() {
 			.then(response => {
 				if(response.status === 200){
                     let devices = response.data.map( entry =>{
-                        let label = entry.name;
+                        let label = entry.name + " - " + entry.video ;
                         return ({entry:entry, value:entry.id, label:label});
                     });
 					dispatch(updateDevices(devices));
@@ -54,6 +54,7 @@ function fetchHeartRateForDevice( deviceId) {
                     result.greenPkPk = response.data.map( entry => {return entry.greenPkPk});
                     result.greenFFT = response.data.map( entry => {return entry.greenFFT});
                     result.fps = response.data.map( entry => {return entry.fps});
+                    result.FFTConfidence = response.data.map( entry => {return entry.FFTConfidence});
 					dispatch(updateHeartRate(result));
 				}else{
 					dispatch(updateHeartRate([]));
@@ -112,16 +113,16 @@ const createChartData = heartRate => {
         fps.yAxisID = 'B';
         chartData.datasets.push( fps);
 
-        // let sumFFTs = {};
-        // sumFFTs.data = heartRate.sumFFTs;
-        // sumFFTs.backgroundColor='rgb(53, 91, 183)';
-        // sumFFTs.fill=false;
-		// sumFFTs.pointRadius=0;
-        // sumFFTs.borderColor='rgb(53, 91, 183)';
-        // sumFFTs.label = "Sum FFTs";
-        // sumFFTs.lineTension = 0;
-        // sumFFTs.yAxisID = 'A';
-        // chartData.datasets.push( sumFFTs);
+        let FFTConfidence = {};
+        FFTConfidence.data = heartRate.FFTConfidence;
+        FFTConfidence.backgroundColor='rgb(53, 53, 183)';
+        FFTConfidence.fill=false;
+		FFTConfidence.pointRadius=0;
+        FFTConfidence.borderColor='rgb(53, 53, 183)';
+        FFTConfidence.label = "FFT Confidence (%)";
+        FFTConfidence.lineTension = 0;
+        FFTConfidence.yAxisID = 'B';
+        chartData.datasets.push( FFTConfidence);
 
         // let correlatedFFTs = {};
         // correlatedFFTs.data = heartRate.correlatedFFTs;

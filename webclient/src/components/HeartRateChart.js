@@ -36,7 +36,7 @@ const mapStateToProps = state => {
                                 position:'right',
                                 scaleLabel:{
                                     display:true,
-                                    labelString:"Frame rate",
+                                    labelString:"Frame rate/FFT Confidence",
                                     fontColor: "red"
                                 },
                                ticks: {

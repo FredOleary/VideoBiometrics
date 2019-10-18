@@ -158,7 +158,7 @@ class FrameProcessor:
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
                     fps = video.get_actual_fps() if video_file_or_camera  == 0 else video.fps
-                    self.__update_results(video.get_frame_rate(), fps)
+                    self.__update_results(fps, video)
                     self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
                                             round(self.frame_number / (time.time() - self.start_process_time), 2),
@@ -179,13 +179,14 @@ class FrameProcessor:
                 break
         return
 
-    def __update_results(self, fps, actual_fps):
+    def __update_results(self, actual_fps, video):
         """Process the the inter-fame changes, and filter results in both time and frequency domain """
         self.hr_estimate_count += 1
         result_summary ={
             "passCount": self.hr_estimate_count,
             "trackers": {},
-            "fps": actual_fps
+            "fps": actual_fps,
+            "video_name": video.video_file_or_camera_name
         }
         if DEPRECATED is False:
             roi_composite = ROIComposite(self.logger, self.tracker_list)
@@ -205,6 +206,7 @@ class FrameProcessor:
                 result_summary["trackers"].update({'{}PkPk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
             if tracker.bpm_fft is not None:
                 result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
+                result_summary["trackers"].update({'FFTConfidence': round(tracker.bpm_fft_confidence, 2)})
 
             if DEPRECATED is False:
                 composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
@@ -217,7 +219,7 @@ class FrameProcessor:
 
         if DEPRECATED is False:
             roi_composite.sum_ffts()
-            roi_composite.correlate_and_add(fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
+            roi_composite.correlate_and_add(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
             roi_composite.calculate_bpm_from_sum_of_ffts()
             roi_composite.calculate_bpm_from_peaks_positive()
             roi_composite.calculate_bpm_from_correlated_ffts()
@@ -261,6 +263,6 @@ class FrameProcessor:
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""
         # For files nor non raspberry pi devices, use opencv, for real-time video on raspberry pi, use CameraRaspbian
         if os.path.isfile("/etc/rpi-issue") and video_file_or_camera == 0:
-            return RaspberianGrabber(cv2, fps, width, height, self.logger)
+            return RaspberianGrabber(cv2, fps, width, height, self.logger, video_file_or_camera)
         else:
-            return FrameGrabber(cv2, fps, width, height, self.logger)
+            return FrameGrabber(cv2, fps, width, height, self.logger, video_file_or_camera)

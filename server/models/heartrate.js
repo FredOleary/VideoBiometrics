@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   const HeartRate = sequelize.define('HeartRate', {
     greenPkPk: {type: DataTypes.DOUBLE, allowNull:true},
     greenFFT: {type: DataTypes.DOUBLE, allowNull:true},
-    fps: {type: DataTypes.DOUBLE, allowNull:true}
+    fps: {type: DataTypes.DOUBLE, allowNull:true},
+    FFTConfidence: {type: DataTypes.DOUBLE, allowNull:true}
     // verticalPkPk: {type: DataTypes.DOUBLE, allowNull:true},
     // verticalFFT: {type: DataTypes.DOUBLE, allowNull:true},
     // sumFFTs: {type: DataTypes.DOUBLE, allowNull:true},
