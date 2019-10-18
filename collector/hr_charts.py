@@ -60,7 +60,6 @@ class HRCharts:
                         label='Dimension changes - de-trended',
                         color=(0.0, 1.0, 0.0) )
 
-
                 if tracker.filtered_amplitude is not None:
                     self.chart_dictionary[tracker.name]["ax"][1].plot(
                         tracker.time_period,
