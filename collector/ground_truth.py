@@ -11,6 +11,7 @@ class GroundTruth:
         self.ecg_heart_rate = None;
         self.time_base = None;
         self.ecg_average = None;
+        self.ecg_average_summary = list()
 
 
     def process_ground_truth( self, average_in_sconds = None ):
@@ -48,11 +49,11 @@ class GroundTruth:
         next_index = 0
         for index in range(intervals):
             stop, average = self.get_next_average( index, average_in_sconds)
+            self.ecg_average_summary.append(average)
             while next_index < stop and next_index < len(self.time_base):
                 self.ecg_average[next_index] = average
                 next_index += 1
 
-        print("foo")
     def get_next_average(self, index, average_in_indexsconds):
         start = index * average_in_indexsconds
         end = (index + 1) * average_in_indexsconds

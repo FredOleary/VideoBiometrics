@@ -2,6 +2,7 @@
     "headless":False,                                            # if True, all UI is suppressed
     "csv_output":False,                                         # if TRUE a csv summary of heart rate is produced
     "http_output":True,                                         # if TRUE, heart rate data is sent to a remote server
+    "ground_truth":True,                                       # if TRUE AND a video file is being processed, check for ground_truth.txt in the same folder
 
     "low_pulse_bpm":42,                                         # low pulse rate in beats per minute
     "high_pulse_bpm":150,                                       # high pulse rate in beats per minute

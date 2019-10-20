@@ -1,6 +1,6 @@
 import time
 import os
-
+import sys
 import cv2
 
 from frame_grabber import FrameGrabber
@@ -14,6 +14,8 @@ from hr_charts import HRCharts
 from reporters.csv_reporter import CSVReporter
 from reporters.http_reporter import HTTPReporter
 from roi_color_ica import ROIColorICA
+from ground_truth import GroundTruth
+
 
 SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
@@ -38,6 +40,7 @@ class FrameProcessor:
         self.csv_reporter = CSVReporter()
         self.http_reporter = HTTPReporter(self.logger, self.config)
         self.hr_estimate_count = 0
+        self.ground_truth = None
 
     def capture(self, video_file_or_camera: str):
         """Open video file or start camera. Then start processing frames for motion"""
@@ -67,6 +70,10 @@ class FrameProcessor:
                   format(self.config["resolution"]["width"],
                          self.config["resolution"]["height"],
                          round(self.config["video_fps"])))
+
+            if self.config["ground_truth"]:
+                self.__process_ground_truth( video_file_or_camera )
+
 
             self.__process_feature_detect_then_track(video, video_file_or_camera)
 
@@ -181,13 +188,19 @@ class FrameProcessor:
 
     def __update_results(self, actual_fps, video):
         """Process the the inter-fame changes, and filter results in both time and frequency domain """
-        self.hr_estimate_count += 1
         result_summary ={
-            "passCount": self.hr_estimate_count,
+            "passCount": self.hr_estimate_count + 1,
             "trackers": {},
             "fps": actual_fps,
             "video_name": video.video_file_or_camera_name
         }
+
+        # check for a valid ground_truth HR is available. If so store it in the summary
+        if self.ground_truth is not None and self.hr_estimate_count < len(self.ground_truth.ecg_average_summary):
+            result_summary.update({"ground_truth":round(self.ground_truth.ecg_average_summary[self.hr_estimate_count], 2)})
+
+        self.hr_estimate_count += 1
+
         if DEPRECATED is False:
             roi_composite = ROIComposite(self.logger, self.tracker_list)
 
@@ -266,3 +279,16 @@ class FrameProcessor:
             return RaspberianGrabber(cv2, fps, width, height, self.logger, video_file_or_camera)
         else:
             return FrameGrabber(cv2, fps, width, height, self.logger, video_file_or_camera)
+
+    def __process_ground_truth(self, video_file_or_camera):
+        if video_file_or_camera != 0:
+            # processing a video file, check to see if there is an existing ground_truth file
+            try:
+                folder = os.path.dirname(video_file_or_camera)
+                ground_truth_file = "{}/ground_truth.txt".format(folder)
+                ground_truth = GroundTruth(self.logger, ground_truth_file)
+                ground_truth.process_ground_truth( int(self.config["pulse_sample_frames"]/self.config["video_fps"]))
+                self.ground_truth = ground_truth
+            except:
+                e = sys.exc_info()[0]
+                self.logger.error("Exception: {} ".format(e))
