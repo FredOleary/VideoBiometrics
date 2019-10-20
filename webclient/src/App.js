@@ -6,7 +6,7 @@ import {HomeViewContainer} from './components/HomeViewContainer';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" id = "app">
       <HomeViewContainer/>
     </div>
   );

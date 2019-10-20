@@ -73,7 +73,6 @@ class ROITracker:
                     self.bpm_fft_confidence = 100 - (next[0]/best[0] * 100)
 
                 self.fft_amplitude[bestIndex] = best
-                print("foo")
 
     def fft_filter(self, fps, low_pulse_bpm, high_pulse_bpm):
         """Note this requires that the raw data is previously filtered"""

@@ -175,10 +175,40 @@ const createChartData = heartRate => {
 	return chartData;
 };
 
+function deleteDevice( deviceId) {
+    let params = {deviceId:deviceId};
+	return dispatch => {
+		axiosService.delete('/devices', {params})
+			.then(response => {
+                axiosService('/devices')
+                .then(response => {
+                    if(response.status === 200){
+                        let devices = response.data.map( entry =>{
+                            let label = entry.name + " - " + entry.video ;
+                            return ({entry:entry, value:entry.id, label:label});
+                        });
+                        dispatch(updateDevices(devices));
+                    }else{
+                        dispatch(updateDevices([]));
+    
+                    }
+                })
+                .catch( error =>{
+                    // This means the service isn't running.
+                    dispatch(updateDevices([]))
+                });
+    
+			})
+			.catch( error =>{
+				fetchDevices()
+			});
+    };
+};
 
 export const devicesActions = {
     updateDevices: updateDevices,
     fetchDevices: fetchDevices,
     fetchHeartRateForDevice: fetchHeartRateForDevice,
-    updateSelectedDevice: updateSelectedDevice
+    updateSelectedDevice: updateSelectedDevice,
+    deleteDevice:deleteDevice
 }

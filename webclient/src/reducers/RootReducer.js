@@ -11,6 +11,7 @@ const initialState = {
         case UPDATE_DEVICE:
             newState = {...state}
             newState.devices = action.devices;
+            newState.selectedDevice ={};
             return newState;
         case UPDATE_HEARTRATE:
             newState = {...state}

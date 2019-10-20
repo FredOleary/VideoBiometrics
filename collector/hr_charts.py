@@ -105,12 +105,34 @@ class HRCharts:
                 self.chart_dictionary[tracker.name]["ax"][1].legend(loc='best')
 
                 if tracker.fft_frequency is not None:
-                    chart_bar_width = (tracker.fft_frequency[len(tracker.fft_frequency) - 1] / (
-                                len(tracker.fft_frequency) * 2))
+                    # chart_bar_width = (tracker.fft_frequency[len(tracker.fft_frequency) - 1] / (
+                    #             len(tracker.fft_frequency) * 5))
+                    chart_bar_width = np.min(np.diff(tracker.fft_frequency)) / 5
 
-                    self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency, tracker.fft_amplitude,
-                                                                color=(1.0, 0.0, 0.0), width=chart_bar_width,
-                                                                label='Harmonics, (filtered data)')
+                    self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency,
+                                                                     tracker.fft_amplitude,
+                                                                     color=(0.0, 0.0, 0.0),
+                                                                     width=chart_bar_width,
+                                                                     label='Total Harmonics')
+                    if tracker.fft_amplitude_red is not None:
+                        self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + chart_bar_width,
+                                                                         tracker.fft_amplitude_red,
+                                                                         color=(1.0, 0.0, 0.0),
+                                                                         width=chart_bar_width,
+                                                                         label='Red harmonics')
+                    if tracker.fft_amplitude_green is not None:
+                        self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + 2 * chart_bar_width,
+                                                                         tracker.fft_amplitude_green,
+                                                                         color=(0.0, 1.0, 0.0),
+                                                                         width=chart_bar_width,
+                                                                         label='Green harmonics')
+                    if tracker.fft_amplitude_blue is not None:
+                        self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + 3 * chart_bar_width,
+                                                                         tracker.fft_amplitude_blue,
+                                                                         color=(0.0, 0.0, 1.0),
+                                                                         width=chart_bar_width,
+                                                                         label='Blue harmonics')
+
                     self.chart_dictionary[tracker.name]["ax"][2].legend(loc='best')
 
             except IndexError:

@@ -16,6 +16,10 @@ class ROIColorICA(ROITracker):
         self.logger = logger
         self.config = config
         self.BRG_mean = None
+        self.fft_amplitude_red = None
+        self.fft_amplitude_green = None
+        self.fft_amplitude_blue = None
+
 
     def initialize(self, x, y, w, h, frame):
         self.BRG_mean, roi_filtered = self.__getAverage(x, y, w, h, frame)
@@ -32,27 +36,33 @@ class ROIColorICA(ROITracker):
         start_time = time.time()
 
         if len(self.raw_amplitude) > 0:
-            if False:
+            if True:
                 BGR_series = np.asarray( self.raw_amplitude)
                 blue_series = normalize_amplitude(BGR_series[:, 0])
                 green_series = normalize_amplitude(BGR_series[:, 1])
                 red_series = normalize_amplitude(BGR_series[:, 2])
+                self.raw_amplitude = np.c_[blue_series, green_series, red_series]
                 self.logger.info("RBG Normalized at time {}".format( time.time() -start_time))
 
-                self.raw_amplitude = np.c_[blue_series, green_series, red_series]
+                band_pass_filter = BandPassFilter()
+                blue_series = band_pass_filter.time_filter2(blue_series, fps, low_pulse_bpm, high_pulse_bpm)
+                green_series = band_pass_filter.time_filter2(green_series, fps, low_pulse_bpm, high_pulse_bpm)
+                red_series = band_pass_filter.time_filter2(red_series, fps, low_pulse_bpm, high_pulse_bpm)
+
+                blue_series = normalize_amplitude(blue_series)
+                green_series = normalize_amplitude(green_series)
+                red_series = normalize_amplitude(red_series)
+
+                foo = np.c_[blue_series, green_series, red_series]
                 ica = FastICA()
-                ICA_series = ica.fit_transform(self.raw_amplitude)
+                ICA_series = ica.fit_transform(foo)
 
                 self.logger.info("ICA complete at time {}".format( time.time() -start_time))
 
-                blue_xform = ICA_series[:, 0]
-                green_xform = ICA_series[:, 1]
-                red_xform = ICA_series[:, 2]
+                blue_xform = normalize_amplitude(ICA_series[:, 0])
+                green_xform = normalize_amplitude(ICA_series[:, 1])
+                red_xform = normalize_amplitude(ICA_series[:, 2])
 
-                band_pass_filter = BandPassFilter()
-                blue_xform = band_pass_filter.time_filter2(blue_xform, fps, low_pulse_bpm, high_pulse_bpm)
-                green_xform = band_pass_filter.time_filter2(green_xform, fps, low_pulse_bpm, high_pulse_bpm)
-                red_xform = band_pass_filter.time_filter2(red_xform, fps, low_pulse_bpm, high_pulse_bpm)
 
                 self.filtered_amplitude = np.c_[blue_xform, green_xform, red_xform]
                 height = .3 * np.max(green_xform)
@@ -75,6 +85,9 @@ class ROIColorICA(ROITracker):
                 self.fft_amplitude = fft_amplitude_blue_xform + fft_amplitude_green_xform + fft_amplitude_red_xform
 
                 self.fft_frequency = fft_frequency_blue_xform
+                self.fft_amplitude_red = fft_amplitude_red_xform
+                self.fft_amplitude_green= fft_amplitude_green_xform
+                self.fft_amplitude_blue = fft_amplitude_blue_xform
 
                 self.create_time_period(fps)
                 self.logger.info("FFT completed at time {}".format(time.time() - start_time))
@@ -84,16 +97,16 @@ class ROIColorICA(ROITracker):
                 self.logger.info("RBG Normalized at time {}".format(time.time() - start_time))
                 self.raw_amplitude = green_series
 
-                green_series_reshape = green_series.reshape(-1, 1)
+                band_pass_filter = BandPassFilter()
+                green_series = band_pass_filter.time_filter2(green_series, fps, low_pulse_bpm, high_pulse_bpm)
+
+                green_series_reshape = green_series.reshape(-1, 1) # Needed for ICA of D-1 array
                 ica = FastICA()
                 ICA_series = ica.fit_transform(green_series_reshape)
 
                 self.logger.info("ICA complete at time {}".format(time.time() - start_time))
 
                 green_xform = ICA_series.flatten()
-
-                band_pass_filter = BandPassFilter()
-                green_xform = band_pass_filter.time_filter2(green_xform, fps, low_pulse_bpm, high_pulse_bpm)
 
                 green_xform = normalize_amplitude(green_xform)
                 self.filtered_amplitude = green_xform

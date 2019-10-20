@@ -7,13 +7,6 @@ import {bindActionCreators} from "redux";
 const breadLogo = require('.././images/heart2.png');
 
 
-// const options = [
-//     { value:1, label:'one'}, 
- //    { value:2, label:'two'},
- //    { value:3, label:'three'}
- //  ];
-// const defaultOption = options[1];
-
 const toolbar = {
     backgroundColor: 'rgb(200,200,200)' ,
     display:'flex'
@@ -28,7 +21,7 @@ const deviceSelector = {
     textAlign:'left'
 };
 
-const refreshButton = {
+const toolbarButton = {
     backgroundColor: 'rgb(200,200,200)',
     marginLeft:'30px',
     marginTop:'auto',
@@ -53,6 +46,7 @@ const duration ={
  //   textAlign:'center'
 
 }
+
 const mapStateToProps = state => {
     return { devices: state.devices, selectedDevice: state.selectedDevice, chartData: state.chartData };
   };
@@ -63,22 +57,27 @@ function mapDispatchToProps(dispatch) {
 }
   
 class ConnectedToolbar extends Component{
+    select = {value:null};
     componentDidMount() {
         console.log("ConnectedToolbar-componentDidMount");
         this.selectedItem = null;
+        this.select = {value:null};
         this.props.devicesActions.fetchDevices();
         // setInterval( this.onAutoUpdate.bind(this), 10000);
      }
     render(){
         return (
-            <div style = {toolbar} >
+            <div style = {toolbar} id = "tbar" >
                 <div style ={deviceSelector}>
-                    <Select options={this.getDeviceAndVideo()} onChange={this.onSelectChange.bind(this)} />
+                    <Select value={this.select.value} options={this.getDeviceAndVideo()} onChange={this.onSelectChange.bind(this)} />
                 </div>
-                <div style={refreshButton}>
+                <div style={toolbarButton}>
                     <button disabled ={this.isSelectedEmpty()} onClick={this.onRefresh.bind(this)} style ={{height:30, fontSize:'16px'}}>Refresh</button>
                 </div>
-                <div style = {logo}>
+                <div style={toolbarButton}>
+                    <button disabled ={this.isSelectedEmpty()} onClick={this.onDelete.bind(this)} style ={{height:30, fontSize:'16px'}}>Delete...</button>
+                </div>
+               <div style = {logo}>
                     <img style={imageStyle} src={breadLogo} alt="Bread icon" />
                 </div>
             </div>
@@ -89,6 +88,7 @@ class ConnectedToolbar extends Component{
     }
     onSelectChange( selectedItem ){
         this.selectedItem = selectedItem;
+        this.select.value = selectedItem;
         if( selectedItem){
             this.props.devicesActions.updateSelectedDevice(selectedItem);
             this.props.devicesActions.fetchHeartRateForDevice( selectedItem.value);
@@ -100,7 +100,14 @@ class ConnectedToolbar extends Component{
  
     onRefresh(){
         this.props.devicesActions.fetchHeartRateForDevice( this.props.selectedDevice.value);
+    }
+
+    onDelete(){
+        this.props.devicesActions.deleteDevice( this.props.selectedDevice.value);
+        this.selectedItem = null;
+        this.select.value = null;
      }
+
     onAutoUpdate(){
         if( this.selectedItem ){
             let batchEndTime = new Date( this.selectedItem.endDate);

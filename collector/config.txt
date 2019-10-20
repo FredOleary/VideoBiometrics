@@ -17,7 +17,7 @@
     "opencv_tracker":"MOSSE",                                     # Options are: (see https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/)
                                                                 # CSRT - Best but slowest, KCF medium performance/speed MOSSE, fastest
 
-    "pause_between_samples":True,                               # If True, the video will pause between Pulse estimations
+    "pause_between_samples":False,                               # If True, the video will pause between Pulse estimations
     "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
 
     "server_url":"http://localhost:3000/",                      # URL of remote server, registration
