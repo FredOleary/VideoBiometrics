@@ -41,7 +41,7 @@ function fetchHeartRateForDevice( deviceId) {
 	return dispatch => {
 		axiosService.get('/heartrate', {params})
 			.then(response => {
-                let result = {createdAt:[], sumFFTs:[], greenFFT:[], correlatedPkPk:[]}
+                let result = {createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],FFTConfidence:[] }
 				if(response.status === 200){
                     result.createdAt = response.data.map( entry =>{
                         return (new Date(entry.createdAt)).toLocaleString();
@@ -53,6 +53,7 @@ function fetchHeartRateForDevice( deviceId) {
                     // result.verticalFFT = response.data.map( entry => {return entry.verticalFFT});
                     result.greenPkPk = response.data.map( entry => {return entry.greenPkPk});
                     result.greenFFT = response.data.map( entry => {return entry.greenFFT});
+                    result.groundTruth = response.data.map( entry => {return entry.groundTruth});
                     result.fps = response.data.map( entry => {return entry.fps});
                     result.FFTConfidence = response.data.map( entry => {return entry.FFTConfidence});
 					dispatch(updateHeartRate(result));
@@ -102,6 +103,17 @@ const createChartData = heartRate => {
         greenPkPk.yAxisID = 'A';
         chartData.datasets.push( greenPkPk);
 
+        let groundTruth = {};
+        groundTruth.data = heartRate.groundTruth;
+        groundTruth.backgroundColor='rgb(220, 200, 00)';
+        groundTruth.fill=false;
+		groundTruth.pointRadius=0;
+        groundTruth.borderColor='rgb(220, 200, 00)';
+        groundTruth.label = "HR - Ground Truth";
+        groundTruth.lineTension = 0;
+        groundTruth.yAxisID = 'A';
+        chartData.datasets.push( groundTruth);
+       
         let fps = {};
         fps.data = heartRate.fps;
         fps.backgroundColor='rgb(255, 0, 0)';
@@ -188,6 +200,7 @@ function deleteDevice( deviceId) {
                             return ({entry:entry, value:entry.id, label:label});
                         });
                         dispatch(updateDevices(devices));
+                        dispatch(updateHeartRate([]));
                     }else{
                         dispatch(updateDevices([]));
     

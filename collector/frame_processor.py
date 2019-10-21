@@ -197,7 +197,7 @@ class FrameProcessor:
 
         # check for a valid ground_truth HR is available. If so store it in the summary
         if self.ground_truth is not None and self.hr_estimate_count < len(self.ground_truth.ecg_average_summary):
-            result_summary.update({"ground_truth":round(self.ground_truth.ecg_average_summary[self.hr_estimate_count], 2)})
+            result_summary.update({"groundTruth":round(self.ground_truth.ecg_average_summary[self.hr_estimate_count], 2)})
 
         self.hr_estimate_count += 1
 
