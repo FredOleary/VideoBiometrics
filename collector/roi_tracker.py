@@ -54,8 +54,9 @@ class ROITracker:
     def calculate_bpm_from_peaks_positive(self):
         if self.peaks_positive_amplitude is not None:
             time_intervals = np.average(np.diff(self.peaks_positive_amplitude))
-            per_beat_in_seconds = time_intervals * self.time_period[1] - self.time_period[0]
+            per_beat_in_seconds = time_intervals * (self.time_period[1] - self.time_period[0])
             self.bpm_pk_pk = 1 / per_beat_in_seconds * 60
+            print( "-------------------------Time Intervals: {}, HRL {}".format(time_intervals, self.bpm_pk_pk))
 
     def calculate_bpm_from_fft(self):
         if self.fft_amplitude is not None:

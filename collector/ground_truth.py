@@ -72,7 +72,7 @@ class GroundTruth:
     def get_average_for_period_ending(self, frame_no, frames_in_sample, fps ):
         """ Get the average heart rate for the previous period ending in frame_no """
         end_time = frame_no/fps
-        sum = 0;
+        sum = 0
         index = 0
         count = 0
         average = 0
