@@ -10,15 +10,15 @@ class ConnectedDeviceDetails extends Component{
     render(){
         return (
             <div style = {{marginTop:"20px"}}>
-                <DeviceEntry label="Device" value={this.getBatchInfo("name")}/>
+                <DeviceEntry label="Device" value={this.getDeviceInfo("name")}/>
                 <br/>
-                <DeviceEntry label="ID" value={this.getBatchInfo("id")}/>
-                <DeviceEntry label="Description" value={this.getBatchInfo("description")}/>
+                <DeviceEntry label="ID" value={this.getDeviceInfo("id")}/>
+                <DeviceEntry label="Description" value={this.getDeviceInfo("description")}/>
                 
           </div>
         )
     }
-    getBatchInfo = (info)=>{
+    getDeviceInfo = (info)=>{
         if(this.props.selectedDevice.hasOwnProperty("entry") ){
             return this.props.selectedDevice.entry[info];
         }

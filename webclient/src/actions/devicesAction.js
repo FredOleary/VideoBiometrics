@@ -1,5 +1,6 @@
 import { UPDATE_DEVICE, UPDATE_HEARTRATE, UPDATE_SELECTED_DEVICE } from "../constants/actionTypes";
 import { axiosService } from '../services/axiosService';
+import { all } from "q";
 
 function updateDevices(devices) {
     return { type: UPDATE_DEVICE, devices: devices }
@@ -23,6 +24,8 @@ function fetchDevices() {
                         let label = entry.name + " - " + entry.video ;
                         return ({entry:entry, value:entry.id, label:label});
                     });
+                    let allDevices = {label:"All heart rate data", value:-1, entry:null, entry:{name:"All", id:-1, description:"All Heart rate data"}}
+                    devices.unshift(allDevices)
 					dispatch(updateDevices(devices));
 				}else{
 					dispatch(updateDevices([]));

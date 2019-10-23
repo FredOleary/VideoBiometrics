@@ -1,0 +1,40 @@
+/Volumes/My Passport for Mac/sample_videos/subject1/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject3/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject4/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject5/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject8/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject9/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject10/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject13/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject14/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject15/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject16/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject17/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject22/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject23/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject25/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject26/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject27/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject30/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject31/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject32/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject33/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject34/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject35/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject36/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject37/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject38/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject39/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject40/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject41/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject42/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject43/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject44/vid.avi
+
+
+
+# Bad files - Bad ECG data
+#/Volumes/My Passport for Mac/sample_videos/subject11/vid.avi
+#/Volumes/My Passport for Mac/sample_videos/subject18/vid.avi
+#/Volumes/My Passport for Mac/sample_videos/subject20/vid.avi
+#/Volumes/My Passport for Mac/sample_videos/subject24/vid.avi

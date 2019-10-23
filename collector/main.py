@@ -1,4 +1,5 @@
 import sys
+import argparse
 import typing
 from frame_processor import FrameProcessor
 import logging
@@ -36,12 +37,35 @@ def main(args: typing.List[str]) -> int:
     logger = setup_custom_logger("COLLECTOR")
     logger.info("Application started")
 
-    frame_processor = FrameProcessor(config, logger)
-    if len(args) > 1:
-        video_file = args[1]
-    frame_processor.capture(video_file)
-    return 0
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", help="Process video file", action='store_true')
+    parser.add_argument("-l", "--list", help="Process .txt file that contains a list of video files", action='store_true')
+    parser.add_argument("filename", type=str, nargs='?', default="")
 
+    args = parser.parse_args()
+    if not args.list:
+        frame_processor = FrameProcessor(config, logger)
+        if args.file:
+            video_file = args.filename
+        frame_processor.capture(video_file)
+        return 0
+    else:
+        file = open(args.filename, "r")
+        while True:
+            next_video_file = file.readline()
+            if len(next_video_file) > 0:
+                next_video_file = next_video_file.rstrip('\n')
+                next_video_file = next_video_file.strip()
+                if len(next_video_file) > 0 and next_video_file[0] != '#':
+                    frame_processor = FrameProcessor(config, logger)
+                    frame_processor.capture(next_video_file)
+            else:
+                break
+
+        file.close
+        return 0
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
+
+

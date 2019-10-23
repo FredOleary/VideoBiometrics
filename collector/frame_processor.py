@@ -29,9 +29,10 @@ class FrameProcessor:
         self.logger.info("Configuration: {} ".format(config))
         self.config = config
         self.start_sample_time = None
-        self.pulse_rate_bpm = "Not available"
+        self.pulse_rate_bpm = "N/A"
         self.tracker = None
         self.frame_number = 0
+        self.total_frames_read = 0
         self.start_process_time = None
         self.tracker_list = list()
         self.hr_charts = None
@@ -60,6 +61,7 @@ class FrameProcessor:
             self.logger.error("Error opening video stream or file, '{}'".format(video_file_or_camera))
         else:
             self.csv_reporter.open(csv_file)
+            self.total_frames_read = 0
 
             # retrieve the camera/video properties.
             width, height = video.get_resolution()
@@ -82,7 +84,7 @@ class FrameProcessor:
 
         video.close_video()
         time.sleep(.5)
-        if self.config["headless"] is False:
+        if self.config["headless"] is False and self.config["pause_on_exit"] is True :
             input("Hit Enter to exit")
 
     def __start_capture(self, video):
@@ -109,6 +111,7 @@ class FrameProcessor:
         while video.is_opened():
             ret, frame = video.read_frame()
             if ret:
+                self.total_frames_read += 1
                 if self.config["headless"] is False:
                     # If the original frame is not writable and we wish to modify the frame. E.g. change the ROI to green
                     self.last_frame = frame.copy()
@@ -159,8 +162,9 @@ class FrameProcessor:
 
                 if self.config["headless"] is False:
                     pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(self.pulse_rate_bpm, 2)
-                    cv2.putText(self.last_frame, "Pulse rate (BPM): {}. Frame: {}".format(pulse_rate, self.frame_number),
-                            (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+                    cv2.putText(self.last_frame, "HR (BPM): {}. Frame: {}. Total Frames: {}".
+                                format(pulse_rate, self.frame_number, self.total_frames_read),
+                                (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
@@ -196,8 +200,10 @@ class FrameProcessor:
         }
 
         # check for a valid ground_truth HR is available. If so store it in the summary
-        if self.ground_truth is not None and self.hr_estimate_count < len(self.ground_truth.ecg_average_summary):
-            result_summary.update({"groundTruth":round(self.ground_truth.ecg_average_summary[self.hr_estimate_count], 2)})
+        if self.ground_truth is not None:
+            ground_truth_for_period = self.ground_truth.get_average_for_period_ending(
+                self.total_frames_read, self.config["pulse_sample_frames"], actual_fps)
+            result_summary.update({"groundTruth":round(ground_truth_for_period, 2)})
 
         self.hr_estimate_count += 1
 
@@ -245,7 +251,7 @@ class FrameProcessor:
                 # TODO - Strategy to determine the 'best' heart rate
                 self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
             else:
-                self.pulse_rate_bpm = "Not available"
+                self.pulse_rate_bpm = "N/A"
 
             if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
                 self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
@@ -254,7 +260,7 @@ class FrameProcessor:
             if self.tracker_list[0].bpm_fft is not None:
                 self.pulse_rate_bpm = self.tracker_list[0].bpm_fft
             else:
-                self.pulse_rate_bpm = "Not available"
+                self.pulse_rate_bpm = "N/A"
 
         if self.config["csv_output"] is True:
             self.csv_reporter.report_results( result_summary)

@@ -27,9 +27,10 @@ const mapStateToProps = state => {
                                     fontColor: "blue"
                                 },
                                 ticks: {
-                                    beginAtZero:true,
-									max: 200,
-									stepSize: 20,
+                                    beginAtZero:false,
+                                    min: 40,
+									max: 140,
+									stepSize: 10,
                                 }
                              },{
                                 id:'B',

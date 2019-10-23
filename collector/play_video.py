@@ -71,7 +71,7 @@ def create_camera(video_file_or_camera, fps, width, height, logger):
     if os.path.isfile("/etc/rpi-issue") and video_file_or_camera == 0 :
         return RaspberianGrabber(cv2, fps, width, height, logger)
     else:
-        return FrameGrabber(cv2, fps, width, height, logger)
+        return FrameGrabber(cv2, fps, width, height, logger, video_file_or_camera)
 
 
 def setup_custom_logger(name):
