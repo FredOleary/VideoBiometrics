@@ -276,7 +276,7 @@ class FrameProcessor:
         self.tracker_list.clear()
         if DEPRECATED is False:
             self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
-        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'G', "green"))
+        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'green', "color"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""
