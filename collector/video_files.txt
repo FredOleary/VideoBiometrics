@@ -30,6 +30,8 @@
 /Volumes/My Passport for Mac/sample_videos/subject42/vid.avi
 /Volumes/My Passport for Mac/sample_videos/subject43/vid.avi
 /Volumes/My Passport for Mac/sample_videos/subject44/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject45/vid.avi
+/Volumes/My Passport for Mac/sample_videos/subject46/vid.avi
 
 
 
