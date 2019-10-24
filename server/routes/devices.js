@@ -3,6 +3,7 @@ var express = require('express');
 
 const db = require('../models/index');
 const Device = db.sequelize.models.Device;
+const HeartRate = db.sequelize.models.HeartRate;
 var router = express.Router();
 
 
@@ -20,7 +21,7 @@ router.delete('/', function(req, res, next) {
   if( req.query.deviceId == -1 ){
     return Device.destroy({
       where: {},
-      truncate: true
+      truncate: false
     }).then(function(result){
       res.send(200);
     }).catch( err =>{

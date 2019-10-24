@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   HeartRate.associate = function(models) {
     HeartRate.belongsTo(models.Device, {
       onDelete: "CASCADE",
+      foreignKeyConstraint: true,
       foreignKey: {
         name: 'DeviceId', 
         allowNull: false
