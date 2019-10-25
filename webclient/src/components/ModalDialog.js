@@ -11,7 +11,7 @@ const modalButton = {
 };
 
 
-class ModalTest extends React.Component {
+class ModalDialog extends React.Component {
 
   render() {
     return (
@@ -27,4 +27,4 @@ class ModalTest extends React.Component {
   }
 }
 
-export default ModalTest;
+export default ModalDialog;

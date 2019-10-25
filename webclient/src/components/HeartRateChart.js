@@ -7,6 +7,10 @@ const mapStateToProps = state => {
     return { chartData: state.chartData, selectedDevice: state.selectedDevice };
   };
 
+const getIndex = (chart,tooltipItem) =>{
+   
+    return tooltipItem.index
+}
 
 
   class ConnectedHeartRateChart extends Component {
@@ -16,6 +20,13 @@ const mapStateToProps = state => {
                 <Line
                     data={this.getChartData()}
                     options={{
+                        tooltips: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return "Index-" + getIndex(HeartRateChart, tooltipItem);
+                                }
+                            }
+                        },
                         maintainAspectRatio: true,
                         scales: {
                             yAxes: [{
@@ -68,6 +79,10 @@ const mapStateToProps = state => {
     getChartData = () =>{
         console.log("Get Chart Data")
         return this.props.chartData;
+    }
+    getIndex = tooltipItem =>{
+        console.log(this.props.chartData)
+        return tooltipItem.index
     }
 }
 const HeartRateChart = connect(
