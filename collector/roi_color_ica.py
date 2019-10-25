@@ -99,14 +99,14 @@ class ROIColorICA(ROITracker):
             self.create_time_period(fps)
 
             # Pick the RGB component with the most dominant FFT frequency for pk-pk calculations
-            max_index, confidence_r = self.__sort_fft(self.fft_amplitude_red)
-            fft_red = ({"name":'R', "series": self.filtered_amplitude_red, "confidence": confidence_r})
+            max_value_r, max_index, confidence_r = self.__sort_fft(self.fft_amplitude_red)
+            fft_red = ({"name":'R', "series": self.filtered_amplitude_red, "confidence": max_value_r})
 
-            max_index, confidence_g = self.__sort_fft(self.fft_amplitude_green)
-            fft_green = ({"name":'G', "series": self.filtered_amplitude_green, "confidence": confidence_g})
+            max_value_g, max_index, confidence_g = self.__sort_fft(self.fft_amplitude_green)
+            fft_green = ({"name":'G', "series": self.filtered_amplitude_green, "confidence": max_value_g})
 
-            max_index, confidence_b = self.__sort_fft(self.fft_amplitude_blue)
-            fft_blue = ({"name":'B', "series": self.filtered_amplitude_blue, "confidence": confidence_b})
+            max_value_b, max_index, confidence_b = self.__sort_fft(self.fft_amplitude_blue)
+            fft_blue = ({"name":'B', "series": self.filtered_amplitude_blue, "confidence": max_value_b})
 
             confidence_list = sorted((fft_red, fft_green, fft_blue), reverse = True,
                                      key=functools.cmp_to_key(self.__compare_confidence))
@@ -118,37 +118,6 @@ class ROIColorICA(ROITracker):
             peaks_positive, _ = signal.find_peaks(self.pk_pk_series, height=height, threshold=None)
             if len(peaks_positive) > 2:
                 self.peaks_positive_amplitude = peaks_positive
-
-            # self.peaks_positive = self.filtered_amplitude_red
-            # max_index, confidence_r = self.__sort_fft(self.self.fft_amplitude_red)
-            # max_index, confidence_g = self.__sort_fft(self.self.fft_amplitude_green)
-            # if confidence_g > confidence_r:
-            #     self.pk_pk_series = 'G'
-            #     self.peaks_positive = self.filtered_amplitude_green
-            #
-            # freqArray = np.where(self.fft_amplitude_total == np.amax(self.fft_amplitude_total))
-            # if len(freqArray) > 0:
-            #     red_max = self.fft_amplitude_red[freqArray[0]]
-            #     green_max = self.fft_amplitude_green[freqArray[0]]
-            #     blue_max = self.fft_amplitude_blue[freqArray[0]]
-            #
-            #     peak_xform = green_xform
-            #     if blue_max > green_max :
-            #         peak_xform = blue_xform
-            #         if red_max > blue_max:
-            #             peak_xform = red_xform
-            #     elif red_max > green_max:
-            #         peak_xform = red_xform
-            #         if blue_max > red_max:
-            #             peak_xform = blue_xform
-            #     height = .3 * np.max(peak_xform)
-            #     peaks_positive, _ = signal.find_peaks(peak_xform, height = height, threshold=None)
-            #     if len(peaks_positive) > 2:
-            #         self.peaks_positive_amplitude = peaks_positive
-            #     else:
-            #         self.peaks_positive_amplitude = None
-            #
-            #
 
             self.logger.info("FFT completed at time {}".format(time.time() - start_time))
 
@@ -165,14 +134,13 @@ class ROIColorICA(ROITracker):
             time_intervals = np.average(np.diff(self.peaks_positive_amplitude))
             per_beat_in_seconds = time_intervals * (self.time_period[1] - self.time_period[0])
             self.bpm_pk_pk = 1 / per_beat_in_seconds * 60
-            print( "-------------------------Time Intervals: {}, HRL {}".format(time_intervals, self.bpm_pk_pk))
+            # print( "-------------------------Time Intervals: {}, HRL {}".format(time_intervals, self.bpm_pk_pk))
 
     def calculate_bpm_from_fft(self):
         if self.fft_amplitude_total is not None:
-            max_index, confidence = self.__sort_fft(self.fft_amplitude_total)
+            max_value, max_index, confidence = self.__sort_fft(self.fft_amplitude_total)
             self.bpm_fft = (self.fft_frequency[max_index] * 60)
             self.bpm_fft_confidence = confidence
-            print("foo")
 
     def __getAverage(self, x, y, w, h, source_image):
         # If (x1,y1) and (x2,y2) are the two opposite vertices of mat
@@ -188,11 +156,11 @@ class ROIColorICA(ROITracker):
         return color_average, roi_filtered
 
     def __sort_fft(self, fft):
-        """Process an FFT to return the index of the max frequecy as well as confidence (0-100) that
+        """Process an FFT to return the value/index of the max frequency as well as confidence (0-100) that
         this frequency is dominant"""
         indices = fft.argsort() # note: this is ascending
         max_index = indices[len(indices)-1]
         max_value = fft[max_index]
         next_value = fft[indices[len(indices)-2]]
         confidence = 100 - (next_value / max_value * 100)
-        return max_index, confidence
+        return max_value, max_index, confidence

@@ -1,4 +1,6 @@
 import { UPDATE_DEVICE, UPDATE_HEARTRATE, UPDATE_SELECTED_DEVICE } from "../constants/actionTypes";
+import {CHART_HR_TRUTH_LABEL, CHART_COLOR_FFT_LABEL, CHART_CONFIDENCE_LABEL, CHART_COLOR_PK_PK_LABEL, CHART_FPS_LABEL} from "../constants/chartTypes";
+
 import { axiosService } from '../services/axiosService';
 import { all } from "q";
 
@@ -93,7 +95,7 @@ const createChartData = heartRate => {
         greenFFT.fill=false;
 		greenFFT.pointRadius=0;
         greenFFT.borderColor='rgb(0, 80, 0)';
-        greenFFT.label = "Green FFT";
+        greenFFT.label = CHART_COLOR_FFT_LABEL;
         greenFFT.lineTension = 0;
         greenFFT.yAxisID = 'A';
         chartData.datasets.push( greenFFT);
@@ -104,7 +106,7 @@ const createChartData = heartRate => {
         greenPkPk.fill=false;
 		greenPkPk.pointRadius=0;
         greenPkPk.borderColor='rgb(80, 255, 80)';
-        greenPkPk.label = "Green Pk-Pk";
+        greenPkPk.label = CHART_COLOR_PK_PK_LABEL;
         greenPkPk.lineTension = 0;
         greenPkPk.yAxisID = 'A';
         chartData.datasets.push( greenPkPk);
@@ -115,7 +117,7 @@ const createChartData = heartRate => {
         groundTruth.fill=false;
 		groundTruth.pointRadius=0;
         groundTruth.borderColor='rgb(220, 200, 00)';
-        groundTruth.label = "HR - Ground Truth";
+        groundTruth.label = CHART_HR_TRUTH_LABEL;
         groundTruth.lineTension = 0;
         groundTruth.yAxisID = 'A';
         chartData.datasets.push( groundTruth);
@@ -126,7 +128,7 @@ const createChartData = heartRate => {
         fps.fill=false;
 		fps.pointRadius=0;
         fps.borderColor='rgb(255, 0, 0)';
-        fps.label = "Frames per second (fps)";
+        fps.label = CHART_FPS_LABEL;
         fps.lineTension = 0;
         fps.yAxisID = 'B';
         chartData.datasets.push( fps);
@@ -137,7 +139,7 @@ const createChartData = heartRate => {
         FFTConfidence.fill=false;
 		FFTConfidence.pointRadius=0;
         FFTConfidence.borderColor='rgb(53, 53, 183)';
-        FFTConfidence.label = "FFT Confidence (%)";
+        FFTConfidence.label = CHART_CONFIDENCE_LABEL;
         FFTConfidence.lineTension = 0;
         FFTConfidence.yAxisID = 'B';
         chartData.datasets.push( FFTConfidence);
