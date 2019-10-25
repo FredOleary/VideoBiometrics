@@ -4,17 +4,20 @@ import { connect } from "react-redux";
 
 
 const mapStateToProps = state => {
-    return { chartData: state.chartData, selectedDevice: state.selectedDevice };
+    return { chartData: state.chartData, selectedDevice: state.selectedDevice, devices: state.devices };
   };
 
 const getIndex = (chart,tooltipItem) =>{
    
     return tooltipItem.index
 }
+let chartComponent = null;
 
 
   class ConnectedHeartRateChart extends Component {
-
+    componentDidMount() {
+        chartComponent = this;
+    }
     render() {
         return (<div className = "chart">
                 <Line
@@ -22,9 +25,11 @@ const getIndex = (chart,tooltipItem) =>{
                     options={{
                         tooltips: {
                             callbacks: {
-                                label: function(tooltipItem) {
-                                    return "Index-" + getIndex(HeartRateChart, tooltipItem);
-                                }
+                                label: tooltipItem => {return "Index-" + chartComponent.getIndex(tooltipItem)}
+                                // label: tooltipItem => {this.getIndex.bind(this)}
+                                // label: function(tooltipItem) {
+                                //     return "Index-" + getIndex(HeartRateChart, tooltipItem);
+                                // }
                             }
                         },
                         maintainAspectRatio: true,
@@ -81,8 +86,17 @@ const getIndex = (chart,tooltipItem) =>{
         return this.props.chartData;
     }
     getIndex = tooltipItem =>{
-        console.log(this.props.chartData)
-        return tooltipItem.index
+        if( this.props.chartData.source && this.props.chartData.source.length > 0 ){
+            let value = tooltipItem.value
+            let deviceId = this.props.chartData.source[tooltipItem.index].DeviceId;
+            for (let index = 0; index < this.props.devices.length; index++) { 
+                if( this.props.devices[index].entry.id == deviceId){
+                    let source = this.props.devices[index] .label;
+                    return "Value: " +  value + ", Source: " + source;
+                }
+            }
+        }
+        return "Value: " +  tooltipItem.value;
     }
 }
 const HeartRateChart = connect(

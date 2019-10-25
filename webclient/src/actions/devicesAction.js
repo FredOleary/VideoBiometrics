@@ -44,8 +44,9 @@ function fetchHeartRateForDevice( deviceId) {
 	return dispatch => {
 		axiosService.get('/heartrate', {params})
 			.then(response => {
-                let result = {createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],FFTConfidence:[] }
+                let result = {source:null, createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],FFTConfidence:[] }
 				if(response.status === 200){
+                    result.source = response.data
                     result.createdAt = response.data.map( entry =>{
                         return (new Date(entry.createdAt)).toLocaleString();
                     });
@@ -77,12 +78,14 @@ const createChartData = heartRate => {
 	console.log("createChartData");
 	let chartData = {
         x_axis:[],
-        datasets: []
+        datasets: [],
+        source:null
     };
     if( heartRate.length == 0 ){
         return chartData;
     }
     if( heartRate.createdAt.length > 0 ){
+        chartData.source = heartRate.source;
         chartData.labels = heartRate.createdAt; 
         let greenFFT = {};
         greenFFT.data = heartRate.greenFFT;
