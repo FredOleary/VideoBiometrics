@@ -14,7 +14,8 @@ class ConnectedDeviceDetails extends Component{
                 <br/>
                 <DeviceEntry label="ID" value={this.getDeviceInfo("id")}/>
                 <DeviceEntry label="Description" value={this.getDeviceInfo("description")}/>
-                <DeviceEntry label="Error" value={this.getErrorInfo("description")}/>
+                <DeviceEntry label="%Error Pk-Pk" value={this.getErrorInfo("PkPkErrorAverage")}/>
+                <DeviceEntry label="%Error FFT" value={this.getErrorInfo("FFTErrorAverage")}/>
                 
           </div>
         )
@@ -25,9 +26,10 @@ class ConnectedDeviceDetails extends Component{
         }
         return null;
     }
-    getErrorInfo = () =>{
-        if( this.props.chartData.datasets.length > 0 ){
-            console.log("foo")
+    getErrorInfo = (info) =>{
+        if( this.props.chartData[info] ){
+            console.log("foo");
+            return this.props.chartData[info].toFixed(2);
         }
         return "N/A"
     }

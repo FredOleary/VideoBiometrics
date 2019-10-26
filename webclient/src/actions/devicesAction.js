@@ -1,8 +1,10 @@
 import { UPDATE_DEVICE, UPDATE_HEARTRATE, UPDATE_SELECTED_DEVICE } from "../constants/actionTypes";
-import {CHART_HR_TRUTH_LABEL, CHART_COLOR_FFT_LABEL, CHART_CONFIDENCE_LABEL, CHART_COLOR_PK_PK_LABEL, CHART_FPS_LABEL} from "../constants/chartTypes";
+import {CHART_HR_TRUTH_LABEL, CHART_COLOR_FFT_LABEL, CHART_CONFIDENCE_LABEL, 
+    CHART_COLOR_PK_PK_LABEL, CHART_FPS_LABEL, FFT_ERROR_LABEL, PKPK_ERROR_LABEL} from "../constants/chartTypes";
 
 import { axiosService } from '../services/axiosService';
-import { all } from "q";
+
+const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length
 
 function updateDevices(devices) {
     return { type: UPDATE_DEVICE, devices: devices }
@@ -46,22 +48,38 @@ function fetchHeartRateForDevice( deviceId) {
 	return dispatch => {
 		axiosService.get('/heartrate', {params})
 			.then(response => {
-                let result = {source:null, createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],FFTConfidence:[] }
+                let result = {source:null, createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],
+                    FFTConfidence:[], PkPkError:[], FFTError:[], PkPkErrorAverage:0, FFTErrorAverage:0 }
 				if(response.status === 200){
                     result.source = response.data
                     result.createdAt = response.data.map( entry =>{
                         return (new Date(entry.createdAt)).toLocaleString();
                     });
-                    // result.sumFFTs = response.data.map( entry => {return entry.sumFFTs});
-                    // result.correlatedFFTs = response.data.map( entry => {return entry.correlatedFFTs});
-                    // result.correlatedPkPk = response.data.map( entry => {return entry.correlatedPkPk});
-                    // result.verticalPkPk = response.data.map( entry => {return entry.verticalPkPk});
-                    // result.verticalFFT = response.data.map( entry => {return entry.verticalFFT});
+                     // result.verticalFFT = response.data.map( entry => {return entry.verticalFFT});
                     result.greenPkPk = response.data.map( entry => {return entry.greenPkPk});
                     result.greenFFT = response.data.map( entry => {return entry.greenFFT});
                     result.groundTruth = response.data.map( entry => {return entry.groundTruth});
                     result.fps = response.data.map( entry => {return entry.fps});
                     result.FFTConfidence = response.data.map( entry => {return entry.FFTConfidence});
+                    result.PkPkError =  response.data.map( (entry,index) => {
+                        if(entry.groundTruth != null ){
+                            let PkPkError =  Math.abs( entry.greenPkPk - entry.groundTruth)/ entry.groundTruth * 100
+                            return Math.floor(PkPkError * 100) / 100;
+                        }else{
+                            return null;
+                        }
+                    });
+                    result.PkPkErrorAverage = arrAvg(result.PkPkError);
+                    
+                    result.FFTError =  response.data.map( (entry,index) => {
+                        if(entry.groundTruth != null ){
+                            let FFTError =  Math.abs( entry.greenFFT - entry.groundTruth)/ entry.groundTruth * 100
+                            return Math.floor(FFTError * 100) / 100;
+                        }else{
+                            return null;
+                        }
+                    });
+                    result.FFTErrorAverage = arrAvg(result.FFTError);
 					dispatch(updateHeartRate(result));
 				}else{
 					dispatch(updateHeartRate([]));
@@ -81,7 +99,9 @@ const createChartData = heartRate => {
 	let chartData = {
         x_axis:[],
         datasets: [],
-        source:null
+        source:null,
+        FFTErrorAverage: heartRate.FFTErrorAverage,
+        PkPkErrorAverage: heartRate.PkPkErrorAverage
     };
     if( heartRate.length == 0 ){
         return chartData;
@@ -144,51 +164,31 @@ const createChartData = heartRate => {
         FFTConfidence.yAxisID = 'B';
         chartData.datasets.push( FFTConfidence);
 
-        // let correlatedFFTs = {};
-        // correlatedFFTs.data = heartRate.correlatedFFTs;
-        // correlatedFFTs.backgroundColor='rgb(80, 80, 250)';
-        // correlatedFFTs.fill=false;
-		// correlatedFFTs.pointRadius=0;
-        // correlatedFFTs.borderColor='rgb(80, 80, 250)';
-        // correlatedFFTs.label = "Correlated FFTs";
-        // correlatedFFTs.lineTension = 0;
-        // correlatedFFTs.yAxisID = 'A';
-        // chartData.datasets.push( correlatedFFTs);
+        if(heartRate.FFTErrorAverage){
+            let FFTError = {};
+            FFTError.data = heartRate.FFTError;
+            FFTError.backgroundColor='rgb(150,150,150)';
+            FFTError.fill=false;
+            FFTError.pointRadius=0;
+            FFTError.borderColor='rgb(150,150,150)';
+            FFTError.label = FFT_ERROR_LABEL;
+            FFTError.lineTension = 0;
+            FFTError.yAxisID = 'B';
+            chartData.datasets.push( FFTError);
+        }
 
-        // let correlatedPkPk = {};
-        // correlatedPkPk.data = heartRate.correlatedPkPk;
-        // correlatedPkPk.backgroundColor='rgb(53, 183, 91)';
-        // correlatedPkPk.fill=false;
-		// correlatedPkPk.pointRadius=0;
-        // correlatedPkPk.borderColor='rgb(53, 183, 91)';
-        // correlatedPkPk.label = "Correlated Pk-Pk";
-        // correlatedPkPk.lineTension = 0;
-        // correlatedPkPk.yAxisID = 'A';
-        // chartData.datasets.push( correlatedPkPk);
-
-        // let verticalFFT = {};
-        // verticalFFT.data = heartRate.verticalFFT;
-        // verticalFFT.backgroundColor='rgb(250, 80, 80)';
-        // verticalFFT.fill=false;
-		// verticalFFT.pointRadius=0;
-        // verticalFFT.borderColor='rgb(250, 80, 80)';
-        // verticalFFT.label = "Vertical FFT";
-        // verticalFFT.lineTension = 0;
-        // verticalFFT.yAxisID = 'A';
-        // chartData.datasets.push( verticalFFT);
-
-
-        // let verticalPkPk = {};
-        // verticalPkPk.data = heartRate.verticalPkPk;
-        // verticalPkPk.backgroundColor='rgb(200, 200, 91)';
-        // verticalPkPk.fill=false;
-		// verticalPkPk.pointRadius=0;
-        // verticalPkPk.borderColor='rgb(200, 200, 91)';
-        // verticalPkPk.label = "Vertical Pk-Pk";
-        // verticalPkPk.lineTension = 0;
-        // verticalPkPk.yAxisID = 'A';
-        // chartData.datasets.push( verticalPkPk);
-
+        if(heartRate.PkPkErrorAverage){
+            let PKPKError = {};
+            PKPKError.data = heartRate.PkPkError;
+            PKPKError.backgroundColor='rgb(200,200,200)';
+            PKPKError.fill=false;
+            PKPKError.pointRadius=0;
+            PKPKError.borderColor='rgb(200,200,200)';
+            PKPKError.label = PKPK_ERROR_LABEL;
+            PKPKError.lineTension = 0;
+            PKPKError.yAxisID = 'B';
+            chartData.datasets.push( PKPKError);
+        }
 
     }
 
