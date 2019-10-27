@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     greenPkPk: {type: DataTypes.DOUBLE, allowNull:true},
     greenFFT: {type: DataTypes.DOUBLE, allowNull:true},
     fps: {type: DataTypes.DOUBLE, allowNull:true},
-    FFTConfidence: {type: DataTypes.DOUBLE, allowNull:true}
-    // verticalPkPk: {type: DataTypes.DOUBLE, allowNull:true},
+    FFTConfidence: {type: DataTypes.DOUBLE, allowNull:true},
+    groundTruth: {type: DataTypes.DOUBLE, allowNull:true}
     // verticalFFT: {type: DataTypes.DOUBLE, allowNull:true},
     // sumFFTs: {type: DataTypes.DOUBLE, allowNull:true},
     // correlatedPkPk: {type: DataTypes.DOUBLE, allowNull:true},
@@ -15,7 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   HeartRate.associate = function(models) {
     HeartRate.belongsTo(models.Device, {
       onDelete: "CASCADE",
+      foreignKeyConstraint: true,
       foreignKey: {
+        name: 'DeviceId', 
         allowNull: false
       }
     });

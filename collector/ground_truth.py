@@ -11,6 +11,7 @@ class GroundTruth:
         self.ecg_heart_rate = None;
         self.time_base = None;
         self.ecg_average = None;
+        self.ecg_average_summary = list()
 
 
     def process_ground_truth( self, average_in_sconds = None ):
@@ -48,14 +49,14 @@ class GroundTruth:
         next_index = 0
         for index in range(intervals):
             stop, average = self.get_next_average( index, average_in_sconds)
+            self.ecg_average_summary.append(average)
             while next_index < stop and next_index < len(self.time_base):
                 self.ecg_average[next_index] = average
                 next_index += 1
 
-        print("foo")
-    def get_next_average(self, index, average_in_indexsconds):
-        start = index * average_in_indexsconds
-        end = (index + 1) * average_in_indexsconds
+    def get_next_average(self, index, average_in_seconds):
+        start = index * average_in_seconds
+        end = (index + 1) * average_in_seconds
         count = 0
         average = 0
         x = 0
@@ -67,3 +68,28 @@ class GroundTruth:
             x += 1
         average = average/count
         return x, average
+
+    def get_average_for_period_ending(self, frame_no, frames_in_sample, fps ):
+        """ Get the average heart rate for the previous period ending in frame_no """
+        end_time = frame_no/fps
+        sum = 0
+        index = 0
+        count = 0
+        average = 0
+        start_time = end_time - frames_in_sample/fps
+        if start_time < 0 :
+            start_time = 0;
+        for time in self.time_base:
+            if time >= start_time and time <= end_time :
+                sum += self.ecg_heart_rate[index]
+                count += 1
+            index += 1
+        if count > 0:
+            average = sum/count
+        if self.logger is not None:
+            self.logger.info( "Ground_truth between time {} - {}. ({} frames preceding frame {}. is {})".format(
+                round(start_time,2), round(end_time,2), frames_in_sample, frame_no, round(average,2)))
+        return average
+
+
+

@@ -20,6 +20,7 @@ class FrameGrabber:
         self.total_frame_count = 0
         self.video_ended = False
         self.is_live_stream = False
+        self.last_fps = 0
         if video_file_or_camera == 0:
             self.video_file_or_camera_name = "camera"
         else:
@@ -33,7 +34,13 @@ class FrameGrabber:
         self.capture.set(self.cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     def get_frame_rate(self):
-        return self.capture.get(self.cv2.CAP_PROP_FPS)
+        fps = self.capture.get(self.cv2.CAP_PROP_FPS)
+        if fps != 0:
+            self.last_fps = fps
+            return fps
+        else:
+            self.logger.warn("0 Frame rate detected")
+            return self.last_fps
 
     def get_resolution(self):
         width = self.capture.get(self.cv2.CAP_PROP_FRAME_WIDTH)

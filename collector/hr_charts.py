@@ -24,80 +24,100 @@ class HRCharts:
         self.chart_dictionary[tracker.name]["ax"][1].clear()
         self.chart_dictionary[tracker.name]["ax"][2].clear()
         if tracker.time_period is not None and len(tracker.time_period) > 0:
-            try:
-                bpm_pk = "N/A" if tracker.bpm_pk_pk is None else str(round(tracker.bpm_pk_pk, 2))
-                bpm_fft = "N/A" if tracker.bpm_fft is None else str(round(tracker.bpm_fft, 2))
+            if tracker.type == "color":
+                try:
+                    bpm_pk = "N/A" if tracker.bpm_pk_pk is None else str(round(tracker.bpm_pk_pk, 2))
+                    bpm_fft = "N/A" if tracker.bpm_fft is None else str(round(tracker.bpm_fft, 2))
 
-                self.chart_dictionary[tracker.name]["fig"].suptitle("{} BPM(pk-pk) {}. BPM(fft) {}".format(
-                    tracker.name, bpm_pk, bpm_fft), fontsize=14)
+                    self.chart_dictionary[tracker.name]["fig"].suptitle("{} BPM(pk-pk) {}. BPM(fft) {}".format(
+                        tracker.name, bpm_pk, bpm_fft), fontsize=14)
 
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,0],
-                    label = 'Blue Raw data',
-                    color = (0.0, 0.0, 1.0))
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,1],
-                    label = 'Green Raw data',
-                    color = (0.0, 1.0, 0.0))
-                self.chart_dictionary[tracker.name]["ax"][0].plot(
-                    tracker.time_period,
-                    tracker.raw_amplitude[:,2],
-                    label = 'Red Raw data',
-                    color = (1.0, 0.0, 0.0))
+                    if tracker.raw_amplitude_red is not None:
+                        self.chart_dictionary[tracker.name]["ax"][0].plot(
+                            tracker.time_period,
+                            tracker.raw_amplitude_red,
+                            label='Red Raw data',
+                            color=(1.0, 0.0, 0.0))
 
-                    #label=['Raw data Blue', 'Raw data Green', 'Raw data Red'])
-#                self.chart_dictionary[tracker.name]["ax"][0].legend(['Raw data Blue', 'Raw data Green', 'Raw data Red'])
-#                self.chart_dictionary[tracker.name]["ax"][0].color([(0.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0)])
+                    if tracker.raw_amplitude_green is not None:
+                        self.chart_dictionary[tracker.name]["ax"][0].plot(
+                            tracker.time_period,
+                            tracker.raw_amplitude_green,
+                            label = 'Green Raw data',
+                            color = (0.0, 1.0, 0.0))
 
-                self.chart_dictionary[tracker.name]["ax"][0].legend(loc='best')
+                    if tracker.raw_amplitude_blue is not None:
+                        self.chart_dictionary[tracker.name]["ax"][0].plot(
+                            tracker.time_period,
+                            tracker.raw_amplitude_blue,
+                            label = 'Blue Raw data',
+                            color = (0.0, 0.0, 1.0))
 
-                if tracker.de_trended_amplitude is not None:
-                    self.chart_dictionary[tracker.name]["ax"][0].plot(
-                        tracker.time_period,
-                        tracker.de_trended_amplitude,
-                        label='Dimension changes - de-trended',
-                        color=(0.0, 1.0, 0.0) )
+                    self.chart_dictionary[tracker.name]["ax"][0].legend(loc='best')
 
-                if tracker.filtered_amplitude is not None:
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
-                        tracker.filtered_amplitude[:, 0],
-                        label='Blue ICA Filtered data',
-                        color=(0.0, 0.0, 1.0))
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
-                        tracker.filtered_amplitude[:, 2],
-                        label='Red ICA Filtered data',
-                        color=(1.0, 0.0, 0.0))
+                    if tracker.filtered_amplitude_red is not None:
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude_red,
+                            label='Red ICA Filtered data',
+                            color=(1.0, 0.0, 0.0))
 
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period,
-                        tracker.filtered_amplitude[:, 1],
-                        label='Green ICA Filtered data',
-                        color=(0.0, 1.0, 0.0))
+                    if tracker.filtered_amplitude_green is not None:
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude_green,
+                            label='Green ICA Filtered data',
+                            color=(0.0, 1.0, 0.0))
 
-                if tracker.peaks_positive_amplitude is not None:
-                    self.chart_dictionary[tracker.name]["ax"][1].plot(
-                        tracker.time_period[tracker.peaks_positive_amplitude],
-                        tracker.filtered_amplitude[:,1][tracker.peaks_positive_amplitude],
-                        'ro', ms=3, label='Positive peaks (Green)',
-                        color=(0.0, 0.5, 0.0))
+                    if tracker.filtered_amplitude_blue is not None:
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period,
+                            tracker.filtered_amplitude_blue,
+                            label='Blue ICA Filtered data',
+                            color=(0.0, 0.0, 1.0))
 
-                self.chart_dictionary[tracker.name]["ax"][1].legend(loc='best')
+                    if tracker.peaks_positive_amplitude is not None:
+                        self.chart_dictionary[tracker.name]["ax"][1].plot(
+                            tracker.time_period[tracker.peaks_positive_amplitude],
+                            tracker.pk_pk_series[tracker.peaks_positive_amplitude],
+                            'ro', ms=3, label='Positive peaks',
+                            color=(0.0, 0.0, 0.0))
 
-                if tracker.fft_frequency is not None:
-                    chart_bar_width = (tracker.fft_frequency[len(tracker.fft_frequency) - 1] / (
-                                len(tracker.fft_frequency) * 2))
+                    self.chart_dictionary[tracker.name]["ax"][1].legend(loc='best')
 
-                    self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency, tracker.fft_amplitude,
-                                                                color=(1.0, 0.0, 0.0), width=chart_bar_width,
-                                                                label='Harmonics, (filtered data)')
-                    self.chart_dictionary[tracker.name]["ax"][2].legend(loc='best')
+                    if tracker.fft_frequency is not None:
+                        # chart_bar_width = (tracker.fft_frequency[len(tracker.fft_frequency) - 1] / (
+                        #             len(tracker.fft_frequency) * 5))
+                        chart_bar_width = np.min(np.diff(tracker.fft_frequency)) / 5
 
-            except IndexError:
-                self.logger.error("charting error " + tracker.name)
+                        self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency,
+                                                                         tracker.fft_amplitude_total,
+                                                                         color=(0.0, 0.0, 0.0),
+                                                                         width=chart_bar_width,
+                                                                         label='Total Harmonics')
+                        if tracker.fft_amplitude_red is not None:
+                            self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + chart_bar_width,
+                                                                             tracker.fft_amplitude_red,
+                                                                             color=(1.0, 0.0, 0.0),
+                                                                             width=chart_bar_width,
+                                                                             label='Red harmonics')
+                        if tracker.fft_amplitude_green is not None:
+                            self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + 2 * chart_bar_width,
+                                                                             tracker.fft_amplitude_green,
+                                                                             color=(0.0, 1.0, 0.0),
+                                                                             width=chart_bar_width,
+                                                                             label='Green harmonics')
+                        if tracker.fft_amplitude_blue is not None:
+                            self.chart_dictionary[tracker.name]["ax"][2].bar(tracker.fft_frequency + 3 * chart_bar_width,
+                                                                             tracker.fft_amplitude_blue,
+                                                                             color=(0.0, 0.0, 1.0),
+                                                                             width=chart_bar_width,
+                                                                             label='Blue harmonics')
+
+                        self.chart_dictionary[tracker.name]["ax"][2].legend(loc='best')
+
+                except IndexError:
+                    self.logger.error("charting error " + tracker.name)
         else:
             self.chart_dictionary[tracker.name]["fig"].suptitle(tracker.name + " BPM - Not available"
                                                            , fontsize=14)

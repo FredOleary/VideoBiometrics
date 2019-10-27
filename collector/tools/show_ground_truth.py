@@ -27,7 +27,7 @@ def string_to_numeric_array( string):
     return list(map(float, string_array))
 
 if __name__ == '__main__':
-    file_name = "../sample_videos/subject1/ground_truth.txt"
+    file_name = "/Volumes/My Passport for Mac/sample_videos/subject1/ground_truth.txt"
     if len(sys.argv) > 1:
         file_name = sys.argv[1]
 

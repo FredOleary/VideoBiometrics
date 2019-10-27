@@ -13,7 +13,9 @@
     "react-scripts": "3.0.1",
     "react-select": "^3.0.4",
     "redux": "^4.0.1",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "react-popup":"^0.10.0",
+    "react-modal":"3.10.1"
   },
   "scripts": {
     "start": "PORT=3001 react-scripts start",

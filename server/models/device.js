@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {});
   Device.associate = function(models) {
-    Device.hasMany(models.HeartRate);
+    Device.hasMany(models.HeartRate, { onDelete: 'cascade' });
   };
   return Device;
 };
