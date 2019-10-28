@@ -31,7 +31,7 @@ class ROISelector:
                     elif self.config['feature_method'] == 'forehead':
                         # For forehead detection, use the top fraction of face and 3/5 width
                         # (These are empirical values)
-                        h = int(h/3)
+                        h = int(h/5)
                         x = x + int(w/5)
                         w = int(3*w/5)
                         found = True
