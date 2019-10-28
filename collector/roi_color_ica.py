@@ -114,8 +114,10 @@ class ROIColorICA(ROITracker):
             self.pk_pk_series_label = confidence_list[0]["name"]
             self.pk_pk_series  = confidence_list[0]["series"]
 
-            height = .3 * np.max(self.pk_pk_series)
-            peaks_positive, _ = signal.find_peaks(self.pk_pk_series, height=height, threshold=None)
+            # height = .3 * np.max(self.pk_pk_series)
+            height = .6
+            prominence = .4
+            peaks_positive, _ = signal.find_peaks(self.pk_pk_series, height=height, prominence=prominence)
             if len(peaks_positive) > 2:
                 self.peaks_positive_amplitude = peaks_positive
 
