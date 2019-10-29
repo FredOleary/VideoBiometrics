@@ -8,7 +8,6 @@ from raspberian_grabber import RaspberianGrabber
 
 from roi_selector import ROISelector
 from roi_motion import ROIMotion
-from roi_color import ROIColor
 from roi_composite import ROIComposite
 from hr_charts import HRCharts
 from reporters.csv_reporter import CSVReporter
@@ -16,15 +15,15 @@ from reporters.http_reporter import HTTPReporter
 from roi_color_ica import ROIColorICA
 from ground_truth import GroundTruth
 
-
 SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
 DEPRECATED = True
 
-# noinspection PyUnresolvedReferences
+
+# noinspection PyUnresolvedReferences,SpellCheckingInspection
 class FrameProcessor:
     def __init__(self, config, logger):
-        self.logger = logger;
+        self.logger = logger
         self.logger.info("openCV version: {}".format(cv2.__version__))
         self.logger.info("Configuration: {} ".format(config))
         self.config = config
@@ -52,9 +51,10 @@ class FrameProcessor:
             video_file_or_camera = 0  # First camera
             csv_file = "camera"
 
-        video = self.__create_camera(video_file_or_camera, self.config["video_fps"],
-                                   self.config["resolution"]["width"],
-                                   self.config["resolution"]["height"])
+        video = self.__create_camera(video_file_or_camera,
+                                     self.config["video_fps"],
+                                     self.config["resolution"]["width"],
+                                     self.config["resolution"]["height"])
 
         is_opened = video.open_video(video_file_or_camera)
         if not is_opened:
@@ -68,14 +68,13 @@ class FrameProcessor:
             self.config["resolution"]["width"] = width
             self.config["resolution"]["height"] = height
             self.config["video_fps"] = video.get_frame_rate()
-            self.logger.info("Capture - Video: Resolution = {} X {}. Frame rate {}".
-                  format(self.config["resolution"]["width"],
-                         self.config["resolution"]["height"],
-                         round(self.config["video_fps"])))
+            self.logger.info("Capture - Video: Resolution = {} X {}. Frame rate {}".format(
+                self.config["resolution"]["width"],
+                self.config["resolution"]["height"],
+                round(self.config["video_fps"])))
 
             if self.config["ground_truth"]:
-                self.__process_ground_truth( video_file_or_camera )
-
+                self.__process_ground_truth(video_file_or_camera)
 
             self.__process_feature_detect_then_track(video, video_file_or_camera)
 
@@ -84,15 +83,17 @@ class FrameProcessor:
 
         video.close_video()
         time.sleep(.5)
-        if self.config["headless"] is False and self.config["pause_on_exit"] is True :
+        if self.config["headless"] is False and self.config["pause_on_exit"] is True:
             input("Hit Enter to exit")
+        if self.hr_charts is not None:
+            self.hr_charts.close_all()
 
     def __start_capture(self, video):
         """Start streaming the video file or camera"""
         self.__create_trackers()
         self.frame_number = 0
         self.start_process_time = time.time()
-        video.start_capture(self.config["pulse_sample_frames"]+1)
+        video.start_capture(self.config["pulse_sample_frames"] + 1)
 
     def __process_feature_detect_then_track(self, video, video_file_or_camera):
         """Read video frame by frame and collect changes to the ROI. After sufficient
@@ -103,17 +104,16 @@ class FrameProcessor:
         if self.config["headless"] is False:
             self.hr_charts = HRCharts(self.logger)
             for tracker in self.tracker_list:
-                self.hr_charts.add_chart(tracker.name)
+                self.hr_charts.add_chart(tracker.name, sub_charts_rows=2, sub_charts_columns=2)
             if DEPRECATED is False:
-                self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts = 2)
-                self.hr_charts.add_chart(CORRELATED_SUM, sub_charts = 2)
-
+                self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts_rows=2, sub_charts_columns=2)
+                self.hr_charts.add_chart(CORRELATED_SUM, sub_charts_rows=2, sub_charts_columns=2)
         while video.is_opened():
             ret, frame = video.read_frame()
             if ret:
                 self.total_frames_read += 1
                 if self.config["headless"] is False:
-                    # If the original frame is not writable and we wish to modify the frame. E.g. change the ROI to green
+                    # If the original frame is not writable and we wish to modify the frame. E.g.change the ROI to green
                     self.last_frame = frame.copy()
                 else:
                     self.last_frame = frame
@@ -136,9 +136,9 @@ class FrameProcessor:
                         else:
                             self.tracker = cv2.TrackerKCF_create()
 
-                        #self.tracker = cv2.TrackerCSRT_create()
-                        #self.tracker = cv2.TrackerKCF_create()
-                        #self.tracker = cv2.TrackerMOSSE_create()
+                        # self.tracker = cv2.TrackerCSRT_create()
+                        # self.tracker = cv2.TrackerKCF_create()
+                        # self.tracker = cv2.TrackerMOSSE_create()
                         self.tracker.init(self.last_frame, track_box)
                         tracking = True
                     else:
@@ -161,30 +161,31 @@ class FrameProcessor:
                         tracking = False
 
                 if self.config["headless"] is False:
-                    pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(self.pulse_rate_bpm, 2)
+                    pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(
+                        self.pulse_rate_bpm, 2)
                     cv2.putText(self.last_frame, "HR (BPM): {}. Frame: {}. Total Frames: {}".
                                 format(pulse_rate, self.frame_number, self.total_frames_read),
                                 (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
                     cv2.imshow('Frame', self.last_frame)
 
                 if self.frame_number > self.config["pulse_sample_frames"]:
-                    fps = video.get_actual_fps() if video_file_or_camera  == 0 else video.get_frame_rate()
+                    fps = video.get_actual_fps() if video_file_or_camera == 0 else video.get_frame_rate()
                     self.__update_results(fps, video)
                     self.logger.info("Processing time: {} seconds. FPS: {}. Frame count: {}".
                                      format(round(time.time() - self.start_process_time, 2),
                                             round(self.frame_number / (time.time() - self.start_process_time), 2),
                                             self.frame_number))
-                    if self.config["pause_between_samples"] and self.config["headless"] is False :
+                    if self.config["pause_between_samples"] and self.config["headless"] is False:
                         input("Hit enter to continue")
                     self.__start_capture(video)
                     tracking = False
                 if self.config["headless"] is False:
                     # Allow UI
                     key = cv2.waitKey(10) & 0xFF
-                    if key ==  ord('q'):
-                        break               # Exit
+                    if key == ord('q'):
+                        break  # Exit
                     elif key == ord('g'):
-                        self.config["show_pulse_charts"] = True if self.config["show_pulse_charts"] == False else True
+                        self.config["show_pulse_charts"] = True if self.config["show_pulse_charts"] is False else True
             else:
                 self.logger.info("Video stream ended")
                 break
@@ -192,7 +193,7 @@ class FrameProcessor:
 
     def __update_results(self, actual_fps, video):
         """Process the the inter-fame changes, and filter results in both time and frequency domain """
-        result_summary ={
+        result_summary = {
             "passCount": self.hr_estimate_count + 1,
             "trackers": {},
             "fps": actual_fps,
@@ -203,7 +204,7 @@ class FrameProcessor:
         if self.ground_truth is not None:
             ground_truth_for_period = self.ground_truth.get_average_for_period_ending(
                 self.total_frames_read, self.config["pulse_sample_frames"], actual_fps)
-            result_summary.update({"groundTruth":round(ground_truth_for_period, 2)})
+            result_summary.update({"groundTruth": round(ground_truth_for_period, 2)})
 
         self.hr_estimate_count += 1
 
@@ -215,7 +216,7 @@ class FrameProcessor:
                 "name": SUM_FTT_COMPOSITE,
             }
 
-        index = 1;
+        index = 1
         for tracker in self.tracker_list:
             tracker.process(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
             tracker.calculate_bpm_from_peaks_positive()
@@ -228,13 +229,13 @@ class FrameProcessor:
                 result_summary["trackers"].update({'FFTConfidence': round(tracker.bpm_fft_confidence, 2)})
 
             if DEPRECATED is False:
-                composite_data_summ_fft.update({'fft_frequency' + str(index) : tracker.fft_frequency} )
+                composite_data_summ_fft.update({'fft_frequency' + str(index): tracker.fft_frequency})
                 composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
                 composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
 
             if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
                 self.hr_charts.update_chart(tracker)
-            index +=1
+            index += 1
 
         if DEPRECATED is False:
             roi_composite.sum_ffts()
@@ -263,13 +264,13 @@ class FrameProcessor:
                 self.pulse_rate_bpm = "N/A"
 
         if self.config["csv_output"] is True:
-            self.csv_reporter.report_results( result_summary)
+            self.csv_reporter.report_results(result_summary)
         if self.config["http_output"] is True:
-            self.http_reporter.report_results( result_summary)
+            self.http_reporter.report_results(result_summary)
 
         self.logger.info("Results: {} ".format(result_summary))
 
-    def __round(self, value, precision = 2):
+    def __round(self, value, precision=2):
         return None if value is None else round(value, precision)
 
     def __create_trackers(self):
@@ -289,11 +290,12 @@ class FrameProcessor:
     def __process_ground_truth(self, video_file_or_camera):
         if video_file_or_camera != 0:
             # processing a video file, check to see if there is an existing ground_truth file
+            # noinspection PyPep8
             try:
                 folder = os.path.dirname(video_file_or_camera)
                 ground_truth_file = "{}/ground_truth.txt".format(folder)
                 ground_truth = GroundTruth(self.logger, ground_truth_file)
-                ground_truth.process_ground_truth( int(self.config["pulse_sample_frames"]/self.config["video_fps"]))
+                ground_truth.process_ground_truth(int(self.config["pulse_sample_frames"] / self.config["video_fps"]))
                 self.ground_truth = ground_truth
             except:
                 e = sys.exc_info()[0]
