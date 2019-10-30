@@ -75,7 +75,7 @@ class ROIColorICA(ROITracker):
 
             if self.config["use_ICA"] is True:
                 ica_series = np.c_[red_series, green_series, blue_series]
-                ica = FastICA(random_state=1)
+                ica = FastICA(random_state=1, tol=.0001, max_iter = 10000)
                 ica_series = ica.fit_transform(ica_series)
 
                 self.logger.info("ICA complete at time {}".format(time.time() - start_time))
@@ -122,17 +122,18 @@ class ROIColorICA(ROITracker):
             self.pk_pk_series_label = confidence_list[0]["name"]
             self.pk_pk_series = confidence_list[0]["series"]
 
-            # height = .3 * np.max(self.pk_pk_series)
-            height = None
-            prominence = .1
-            peaks_positive, _ = signal.find_peaks(self.pk_pk_series, height=height, prominence=prominence)
+            prominence = .07
+            peaks_positive, _ = signal.find_peaks(self.pk_pk_series, prominence=prominence)
 
-            self.peaks_positive_red, _ = signal.find_peaks(self.filtered_amplitude_red, height=height,
-                                                           prominence=prominence)
-            self.peaks_positive_green, _ = signal.find_peaks(self.filtered_amplitude_green, height=height,
-                                                             prominence=prominence)
-            self.peaks_positive_blue, _ = signal.find_peaks(self.filtered_amplitude_blue, height=height,
-                                                            prominence=prominence)
+            self.peaks_positive_red, _ = signal.find_peaks(self.filtered_amplitude_red, prominence=prominence)
+            self.peaks_positive_green, _ = signal.find_peaks(self.filtered_amplitude_green, prominence=prominence)
+            self.peaks_positive_blue, _ = signal.find_peaks(self.filtered_amplitude_blue, prominence=prominence)
+
+            self.logger.info("Pk-Pk Variance: Red: {}, : Green: {}, : Blue: {}".format(
+                round(np.var(self.peaks_positive_red)),
+                round(np.var(self.peaks_positive_green)),
+                round(np.var(self.peaks_positive_blue)))
+            )
 
             if len(peaks_positive) > 2:
                 self.peaks_positive_amplitude = peaks_positive

@@ -113,7 +113,7 @@ class FrameProcessor:
             if ret:
                 self.total_frames_read += 1
                 if self.config["headless"] is False:
-                    # If the original frame is not writable and we wish to modify the frame. E.g.change the ROI to green
+                    # If the original frame is not writable and we wish to modify the frame. E.g.change the ROI to Pk-Pk
                     self.last_frame = frame.copy()
                 else:
                     self.last_frame = frame
@@ -258,8 +258,8 @@ class FrameProcessor:
                 self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
                 self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
         else:
-            if self.tracker_list[0].bpm_fft is not None:
-                self.pulse_rate_bpm = self.tracker_list[0].bpm_fft
+            if self.tracker_list[0].bpm_pk_pk is not None:
+                self.pulse_rate_bpm = self.tracker_list[0].bpm_pk_pk
             else:
                 self.pulse_rate_bpm = "N/A"
 
