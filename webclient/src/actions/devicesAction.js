@@ -4,6 +4,9 @@ import {CHART_HR_TRUTH_LABEL, CHART_COLOR_FFT_LABEL, CHART_CONFIDENCE_LABEL,
 
 import { axiosService } from '../services/axiosService';
 
+const COLUMN_PK_PK = 'colorPkPk';
+const COLUMN_FFT = 'colorFFT';
+
 const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length
 
 function updateDevices(devices) {
@@ -48,7 +51,7 @@ function fetchHeartRateForDevice( deviceId) {
 	return dispatch => {
 		axiosService.get('/heartrate', {params})
 			.then(response => {
-                let result = {source:null, createdAt:[], sumFFTs:[], greenFFT:[], groundTruth:[], fps:[],
+                let result = {source:null, createdAt:[], colorPkPk:[], colorFFT:[], groundTruth:[], fps:[],
                     FFTConfidence:[], PkPkError:[], FFTError:[], PkPkErrorAverage:0, FFTErrorAverage:0 }
 				if(response.status === 200){
                     result.source = response.data
@@ -56,14 +59,14 @@ function fetchHeartRateForDevice( deviceId) {
                         return (new Date(entry.createdAt)).toLocaleString();
                     });
                      // result.verticalFFT = response.data.map( entry => {return entry.verticalFFT});
-                    result.greenPkPk = response.data.map( entry => {return entry.greenPkPk});
-                    result.greenFFT = response.data.map( entry => {return entry.greenFFT});
+                    result.colorPkPk = response.data.map( entry => {return entry[COLUMN_PK_PK]});
+                    result.colorFFT = response.data.map( entry => {return entry[COLUMN_FFT]});
                     result.groundTruth = response.data.map( entry => {return entry.groundTruth});
                     result.fps = response.data.map( entry => {return entry.fps});
                     result.FFTConfidence = response.data.map( entry => {return entry.FFTConfidence});
                     result.PkPkError =  response.data.map( (entry,index) => {
                         if(entry.groundTruth != null ){
-                            let PkPkError =  Math.abs( entry.greenPkPk - entry.groundTruth)/ entry.groundTruth * 100
+                            let PkPkError =  Math.abs( entry[COLUMN_PK_PK] - entry.groundTruth)/ entry.groundTruth * 100
                             return Math.floor(PkPkError * 100) / 100;
                         }else{
                             return null;
@@ -73,7 +76,7 @@ function fetchHeartRateForDevice( deviceId) {
                     
                     result.FFTError =  response.data.map( (entry,index) => {
                         if(entry.groundTruth != null ){
-                            let FFTError =  Math.abs( entry.greenFFT - entry.groundTruth)/ entry.groundTruth * 100
+                            let FFTError =  Math.abs( entry[COLUMN_FFT] - entry.groundTruth)/ entry.groundTruth * 100
                             return Math.floor(FFTError * 100) / 100;
                         }else{
                             return null;
@@ -109,27 +112,27 @@ const createChartData = heartRate => {
     if( heartRate.createdAt.length > 0 ){
         chartData.source = heartRate.source;
         chartData.labels = heartRate.createdAt; 
-        let greenFFT = {};
-        greenFFT.data = heartRate.greenFFT;
-        greenFFT.backgroundColor='rgb(0, 80, 0)';
-        greenFFT.fill=false;
-		greenFFT.pointRadius=0;
-        greenFFT.borderColor='rgb(0, 80, 0)';
-        greenFFT.label = CHART_COLOR_FFT_LABEL;
-        greenFFT.lineTension = 0;
-        greenFFT.yAxisID = 'A';
-        chartData.datasets.push( greenFFT);
+        let colorFFT = {};
+        colorFFT.data = heartRate.colorFFT;
+        colorFFT.backgroundColor='rgb(0, 80, 0)';
+        colorFFT.fill=false;
+		colorFFT.pointRadius=0;
+        colorFFT.borderColor='rgb(0, 80, 0)';
+        colorFFT.label = CHART_COLOR_FFT_LABEL;
+        colorFFT.lineTension = 0;
+        colorFFT.yAxisID = 'A';
+        chartData.datasets.push( colorFFT);
 
-        let greenPkPk = {};
-        greenPkPk.data = heartRate.greenPkPk;
-        greenPkPk.backgroundColor='rgb(80, 255, 80)';
-        greenPkPk.fill=false;
-		greenPkPk.pointRadius=0;
-        greenPkPk.borderColor='rgb(80, 255, 80)';
-        greenPkPk.label = CHART_COLOR_PK_PK_LABEL;
-        greenPkPk.lineTension = 0;
-        greenPkPk.yAxisID = 'A';
-        chartData.datasets.push( greenPkPk);
+        let colorPkPk = {};
+        colorPkPk.data = heartRate.colorPkPk;
+        colorPkPk.backgroundColor='rgb(80, 255, 80)';
+        colorPkPk.fill=false;
+		colorPkPk.pointRadius=0;
+        colorPkPk.borderColor='rgb(80, 255, 80)';
+        colorPkPk.label = CHART_COLOR_PK_PK_LABEL;
+        colorPkPk.lineTension = 0;
+        colorPkPk.yAxisID = 'A';
+        chartData.datasets.push( colorPkPk);
 
         let groundTruth = {};
         groundTruth.data = heartRate.groundTruth;

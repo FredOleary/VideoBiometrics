@@ -19,6 +19,10 @@ SUM_FTT_COMPOSITE = "Sum-of-FFTs"
 CORRELATED_SUM = "Correlated-Sum"
 DEPRECATED = True
 
+COLOR_PKPK = 'colorPkPk'
+COLOR_FFT = 'colorFFT'
+CONFIDENCE = 'FFTConfidence'
+
 
 # noinspection PyUnresolvedReferences,SpellCheckingInspection
 class FrameProcessor:
@@ -223,10 +227,10 @@ class FrameProcessor:
             tracker.calculate_bpm_from_fft()
 
             if tracker.bpm_pk_pk is not None:
-                result_summary["trackers"].update({'{}PkPk'.format(tracker.name): round(tracker.bpm_pk_pk, 2)})
+                result_summary["trackers"].update({COLOR_PKPK: round(tracker.bpm_pk_pk, 2)})
             if tracker.bpm_fft is not None:
-                result_summary["trackers"].update({'{}FFT'.format(tracker.name): round(tracker.bpm_fft, 2)})
-                result_summary["trackers"].update({'FFTConfidence': round(tracker.bpm_fft_confidence, 2)})
+                result_summary["trackers"].update({COLOR_FFT: round(tracker.bpm_fft, 2)})
+                result_summary["trackers"].update({CONFIDENCE: round(tracker.bpm_fft_confidence, 2)})
 
             if DEPRECATED is False:
                 composite_data_summ_fft.update({'fft_frequency' + str(index): tracker.fft_frequency})
@@ -277,7 +281,7 @@ class FrameProcessor:
         self.tracker_list.clear()
         if DEPRECATED is False:
             self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
-        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'green', "color"))
+        self.tracker_list.append(ROIColorICA(self.logger, self.config, 'Color', "color"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):
         """Create the appropriate class using opencv or the raspberry Pi piCamera"""
