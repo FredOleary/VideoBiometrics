@@ -25,9 +25,14 @@ class HRCharts:
     def update_chart(self, tracker):
         """Update amplitude vs time and FFT charts"""
         self.chart_dictionary[tracker.name]["ax"][0][0].clear()
+        self.chart_dictionary[tracker.name]["ax"][0][0].title.set_text("Raw RGB Data")
         self.chart_dictionary[tracker.name]["ax"][0][1].clear()
+        self.chart_dictionary[tracker.name]["ax"][0][1].title.set_text("FFT RGB HR-Amplitude")
         self.chart_dictionary[tracker.name]["ax"][1][0].clear()
+        self.chart_dictionary[tracker.name]["ax"][1][0].title.set_text("Filtered ICA RGB")
         self.chart_dictionary[tracker.name]["ax"][1][1].clear()
+        self.chart_dictionary[tracker.name]["ax"][1][1].title.set_text("RGB PkPk HR-Amplitude")
+
         if tracker.time_period is not None and len(tracker.time_period) > 0:
             if tracker.type == "color":
                 try:
@@ -58,7 +63,7 @@ class HRCharts:
                             label='Blue Raw data',
                             color=(0.0, 0.0, 1.0))
 
-                    self.chart_dictionary[tracker.name]["ax"][0][0].legend(loc='best')
+                    # self.chart_dictionary[tracker.name]["ax"][0][0].legend(loc='best')
 
                     if tracker.filtered_amplitude_red is not None:
                         self.chart_dictionary[tracker.name]["ax"][1][0].plot(
@@ -88,40 +93,42 @@ class HRCharts:
                             'ro', ms=3, label='Positive peaks',
                             color=(0.0, 0.0, 0.0))
 
-                    self.chart_dictionary[tracker.name]["ax"][1][0].legend(loc='best')
+                    # self.chart_dictionary[tracker.name]["ax"][1][0].legend(loc='best')
 
                     if tracker.fft_frequency is not None:
                         # chart_bar_width = (tracker.fft_frequency[len(tracker.fft_frequency) - 1] / (
                         #             len(tracker.fft_frequency) * 5))
-                        chart_bar_width = np.min(np.diff(tracker.fft_frequency)) / 5
+                        chart_bar_width = (np.min(np.diff(tracker.fft_frequency)) / 5) * 60
 
-                        self.chart_dictionary[tracker.name]["ax"][0][1].bar(tracker.fft_frequency,
+                        self.chart_dictionary[tracker.name]["ax"][0][1].bar(tracker.fft_frequency *60,
                                                                             tracker.fft_amplitude_total,
                                                                             color=(0.0, 0.0, 0.0),
                                                                             width=chart_bar_width,
                                                                             label='Total Harmonics')
                         if tracker.fft_amplitude_red is not None:
-                            self.chart_dictionary[tracker.name]["ax"][0][1].bar(tracker.fft_frequency + chart_bar_width,
-                                                                                tracker.fft_amplitude_red,
-                                                                                color=(1.0, 0.0, 0.0),
-                                                                                width=chart_bar_width,
-                                                                                label='Red harmonics')
+                            self.chart_dictionary[tracker.name]["ax"][0][1].bar(
+                                tracker.fft_frequency *60 + chart_bar_width,
+                                tracker.fft_amplitude_red,
+                                color=(1.0, 0.0, 0.0),
+                                width=chart_bar_width,
+                                label='Red harmonics')
                         if tracker.fft_amplitude_green is not None:
                             self.chart_dictionary[tracker.name]["ax"][0][1].bar(
-                                tracker.fft_frequency + 2 * chart_bar_width,
+                                tracker.fft_frequency *60 + 2 * chart_bar_width,
                                 tracker.fft_amplitude_green,
                                 color=(0.0, 1.0, 0.0),
                                 width=chart_bar_width,
                                 label='Green harmonics')
                         if tracker.fft_amplitude_blue is not None:
                             self.chart_dictionary[tracker.name]["ax"][0][1].bar(
-                                tracker.fft_frequency + 3 * chart_bar_width,
+                                tracker.fft_frequency * 60 + 3 * chart_bar_width,
                                 tracker.fft_amplitude_blue,
                                 color=(0.0, 0.0, 1.0),
                                 width=chart_bar_width,
                                 label='Blue harmonics')
 
-                        self.chart_dictionary[tracker.name]["ax"][0][1].legend(loc='best')
+                        # self.chart_dictionary[tracker.name]["ax"][0][1].legend(loc='best')
+                    self.chart_dictionary[tracker.name]["ax"][0][1].set_xlim([40, 160])
 
                     if tracker.peaks_positive_red is not None:
                         self.chart_dictionary[tracker.name]["ax"][1][1].plot(
