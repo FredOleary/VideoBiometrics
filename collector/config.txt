@@ -19,7 +19,7 @@
                                                                 # CSRT - Best but slowest, KCF medium performance/speed MOSSE, fastest
     "use_ICA":True,
 
-    "pause_between_samples":False,                               # If True, the video will pause between Pulse estimations
+    "pause_between_samples":True,                               # If True, the video will pause between Pulse estimations
     "show_pulse_charts":True,                                   # if True then display pulse rate time series charts are displayed
     "pause_on_exit":False,                                      # If true, pause on <ENTER> before exit
 
