@@ -141,17 +141,18 @@ class HRCharts:
                         self.chart_dictionary[tracker.name]["ax"][1][1].plot(
                             1 / (np.diff(tracker.peaks_positive_green) * tracker.time_period[1] - tracker.time_period[
                                 0]) * 60,
-                            tracker.filtered_amplitude_red[tracker.peaks_positive_green][1:],
+                            tracker.filtered_amplitude_green[tracker.peaks_positive_green][1:],
                             'ro', ms=3, label='Positive peaks -Green',
                             color=(0.0, 1.0, 0.0))
                     if tracker.peaks_positive_blue is not None:
                         self.chart_dictionary[tracker.name]["ax"][1][1].plot(
                             1 / (np.diff(tracker.peaks_positive_blue) * tracker.time_period[1] - tracker.time_period[
                                 0]) * 60,
-                            tracker.filtered_amplitude_red[tracker.peaks_positive_blue][1:],
+                            tracker.filtered_amplitude_blue[tracker.peaks_positive_blue][1:],
                             'ro', ms=3, label='Positive peaks -Blue',
                             color=(0.0, 0.0, 1.0))
                     self.chart_dictionary[tracker.name]["ax"][1][1].set_xlim([40, 160])
+                    self.chart_dictionary[tracker.name]["ax"][1][1].set_ylim([0, 1.05])
 
                 except IndexError:
                     self.logger.error("charting error " + tracker.name)
