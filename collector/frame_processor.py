@@ -7,8 +7,6 @@ from frame_grabber import FrameGrabber
 from raspberian_grabber import RaspberianGrabber
 
 from roi_selector import ROISelector
-from roi_motion import ROIMotion
-from roi_composite import ROIComposite
 from hr_charts import HRCharts
 from reporters.csv_reporter import CSVReporter
 from reporters.http_reporter import HTTPReporter
@@ -109,9 +107,7 @@ class FrameProcessor:
             self.hr_charts = HRCharts(self.logger)
             for tracker in self.tracker_list:
                 self.hr_charts.add_chart(tracker.name, sub_charts_rows=2, sub_charts_columns=2)
-            if DEPRECATED is False:
-                self.hr_charts.add_chart(SUM_FTT_COMPOSITE, sub_charts_rows=2, sub_charts_columns=2)
-                self.hr_charts.add_chart(CORRELATED_SUM, sub_charts_rows=2, sub_charts_columns=2)
+
         while video.is_opened():
             ret, frame = video.read_frame()
             if ret:
@@ -212,14 +208,6 @@ class FrameProcessor:
 
         self.hr_estimate_count += 1
 
-        if DEPRECATED is False:
-            roi_composite = ROIComposite(self.logger, self.tracker_list)
-
-            composite_data_summ_fft = {
-                "bpm_fft": None,
-                "name": SUM_FTT_COMPOSITE,
-            }
-
         index = 1
         for tracker in self.tracker_list:
             tracker.process(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
@@ -232,40 +220,14 @@ class FrameProcessor:
                 result_summary["trackers"].update({COLOR_FFT: round(tracker.bpm_fft, 2)})
                 result_summary["trackers"].update({CONFIDENCE: round(tracker.bpm_fft_confidence, 2)})
 
-            if DEPRECATED is False:
-                composite_data_summ_fft.update({'fft_frequency' + str(index): tracker.fft_frequency})
-                composite_data_summ_fft.update({'fft_amplitude' + str(index): tracker.fft_amplitude})
-                composite_data_summ_fft.update({'fft_name' + str(index): tracker.name})
-
             if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
                 self.hr_charts.update_chart(tracker)
             index += 1
 
-        if DEPRECATED is False:
-            roi_composite.sum_ffts()
-            roi_composite.correlate_and_add(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
-            roi_composite.calculate_bpm_from_sum_of_ffts()
-            roi_composite.calculate_bpm_from_peaks_positive()
-            roi_composite.calculate_bpm_from_correlated_ffts()
-
-            result_summary.update({"sumFFTs": self.__round(roi_composite.bpm_from_sum_of_ffts)})
-            result_summary.update({"correlatedPkPk": self.__round(roi_composite.bpm_from_correlated_peaks)})
-            result_summary.update({"correlatedFFTs": self.__round(roi_composite.bpm_from_correlated_ffts)})
-
-            if roi_composite.bpm_from_sum_of_ffts is not None:
-                # TODO - Strategy to determine the 'best' heart rate
-                self.pulse_rate_bpm = roi_composite.bpm_from_sum_of_ffts
-            else:
-                self.pulse_rate_bpm = "N/A"
-
-            if self.config["show_pulse_charts"] is True and self.config["headless"] is False:
-                self.hr_charts.update_fft_composite_chart(roi_composite, composite_data_summ_fft)
-                self.hr_charts.update_correlated_composite_chart(CORRELATED_SUM, roi_composite)
+        if self.tracker_list[0].bpm_pk_pk is not None:
+            self.pulse_rate_bpm = self.tracker_list[0].bpm_pk_pk
         else:
-            if self.tracker_list[0].bpm_pk_pk is not None:
-                self.pulse_rate_bpm = self.tracker_list[0].bpm_pk_pk
-            else:
-                self.pulse_rate_bpm = "N/A"
+            self.pulse_rate_bpm = "N/A"
 
         if self.config["csv_output"] is True:
             self.csv_reporter.report_results(result_summary)
@@ -279,8 +241,6 @@ class FrameProcessor:
 
     def __create_trackers(self):
         self.tracker_list.clear()
-        if DEPRECATED is False:
-            self.tracker_list.append(ROIMotion(self.logger, self.config, 'Y', "vertical"))
         self.tracker_list.append(ROIColorICA(self.logger, self.config, 'Color', "color"))
 
     def __create_camera(self, video_file_or_camera, fps, width, height):

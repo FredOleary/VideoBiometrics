@@ -75,7 +75,7 @@ class ROIColorICA(ROITracker):
 
             if self.config["use_ICA"] is True:
                 ica_series = np.c_[red_series, green_series, blue_series]
-                ica = FastICA(random_state=1, tol=.0001, max_iter = 10000)
+                ica = FastICA(random_state=1, tol=.0001, max_iter = 2000)
                 ica_series = ica.fit_transform(ica_series)
 
                 self.logger.info("ICA complete at time {}".format(time.time() - start_time))
@@ -130,9 +130,9 @@ class ROIColorICA(ROITracker):
             self.peaks_positive_blue, _ = signal.find_peaks(self.filtered_amplitude_blue, prominence=prominence)
 
             self.logger.info("Pk-Pk Variance: Red: {}, : Green: {}, : Blue: {}".format(
-                round(np.var(self.peaks_positive_red)),
-                round(np.var(self.peaks_positive_green)),
-                round(np.var(self.peaks_positive_blue)))
+                round(np.var(np.diff(self.peaks_positive_red))),
+                round(np.var(np.diff(self.peaks_positive_green))),
+                round(np.var(np.diff(self.peaks_positive_blue))))
             )
 
             if len(peaks_positive) > 2:

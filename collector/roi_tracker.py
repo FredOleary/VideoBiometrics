@@ -34,6 +34,6 @@ class ROITracker(abc.ABC):
     def create_time_period(self, fps):
         sample_interval = 1.0 / fps
         video_length = len(self.raw_amplitude) * sample_interval
-        self.time_period = np.arange(0, video_length, sample_interval)
+        self.time_period = np.arange(0, video_length, sample_interval)[0: len(self.raw_amplitude)]
 
 
