@@ -123,7 +123,7 @@ class ROIColorICA(ROITracker):
             self.pk_pk_series = confidence_list[0]["series"]
 
             prominence = .3
-            peaks_positive, details = signal.find_peaks(self.pk_pk_series, prominence=prominence)
+            peaks_positive, details = signal.find_peaks(self.pk_pk_series)
 
             self.peaks_positive_red, _ = signal.find_peaks(self.filtered_amplitude_red, prominence=prominence)
             self.peaks_positive_green, _ = signal.find_peaks(self.filtered_amplitude_green, prominence=prominence)
