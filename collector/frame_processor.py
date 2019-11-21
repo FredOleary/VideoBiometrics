@@ -30,7 +30,8 @@ class FrameProcessor:
         self.logger.info("Configuration: {} ".format(config))
         self.config = config
         self.start_sample_time = None
-        self.pulse_rate_bpm = "N/A"
+        self.pulse_rate_bpm_pk_pk = "N/A"
+        self.pulse_rate_bpm_fft = "N/A"
         self.tracker = None
         self.frame_number = 0
         self.total_frames_read = 0
@@ -161,10 +162,12 @@ class FrameProcessor:
                         tracking = False
 
                 if self.config["headless"] is False:
-                    pulse_rate = self.pulse_rate_bpm if isinstance(self.pulse_rate_bpm, str) else round(
-                        self.pulse_rate_bpm, 2)
-                    cv2.putText(self.last_frame, "HR (BPM): {}. Frame: {}. Total Frames: {}".
-                                format(pulse_rate, self.frame_number, self.total_frames_read),
+                    pulse_rate_pk_pk = self.pulse_rate_bpm_pk_pk if isinstance(self.pulse_rate_bpm_pk_pk, str) else round(
+                        self.pulse_rate_bpm_pk_pk, 2)
+                    pulse_rate_fft = self.pulse_rate_bpm_fft if isinstance(self.pulse_rate_bpm_fft, str) else round(
+                        self.pulse_rate_bpm_fft, 2)
+                    cv2.putText(self.last_frame, "HR: PkPk:{} - FFT:{} Frame: {}. Total Frames: {}".
+                                format(pulse_rate_pk_pk, pulse_rate_fft, self.frame_number, self.total_frames_read),
                                 (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
                     cv2.imshow('Frame', self.last_frame)
 
@@ -225,9 +228,14 @@ class FrameProcessor:
             index += 1
 
         if self.tracker_list[0].bpm_pk_pk is not None:
-            self.pulse_rate_bpm = self.tracker_list[0].bpm_pk_pk
+            self.pulse_rate_bpm_pk_pk = self.tracker_list[0].bpm_pk_pk
         else:
-            self.pulse_rate_bpm = "N/A"
+            self.pulse_rate_bpm_pk_pk = "N/A"
+
+        if self.tracker_list[0].bpm_fft is not None:
+            self.pulse_rate_bpm_fft = self.tracker_list[0].bpm_fft
+        else:
+            self.pulse_rate_bpm_fft = "N/A"
 
         if self.config["csv_output"] is True:
             self.csv_reporter.report_results(result_summary)
