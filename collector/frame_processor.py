@@ -214,7 +214,7 @@ class FrameProcessor:
         index = 1
         for tracker in self.tracker_list:
             tracker.process(actual_fps, self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
-            tracker.calculate_bpm_from_peaks_positive()
+            tracker.calculate_bpm_from_peaks_positive( self.config["low_pulse_bpm"], self.config["high_pulse_bpm"])
             tracker.calculate_bpm_from_fft()
 
             if tracker.bpm_pk_pk is not None:

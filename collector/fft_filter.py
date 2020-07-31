@@ -53,7 +53,7 @@ class FFTFilter:
             # return empty arrays
             return np.array(series), np.array(series), np.array(series), np.array(series)
 
-    def fft_filter2(self, amplitude_series, fps, low_pulse_bpm, high_pulse_bpm):
+    def fft_filter2(self, amplitude_series, fps, low_pulse_bpm, high_pulse_bpm, filter=True):
         ts = 1.0 / fps
         video_length = len(amplitude_series) * ts
         number_of_samples = len(amplitude_series)  # length of the signal
@@ -65,7 +65,8 @@ class FFTFilter:
             y_fft = np.fft.fft(amplitude_series) / number_of_samples  # fft computing and normalization
             y_fft = abs(y_fft[range(int(number_of_samples / 2))])
 
-            x_fft, y_fft = self.filter_harmonics(x_fft, y_fft, low_pulse_bpm, high_pulse_bpm)
+            if filter:
+                x_fft, y_fft = self.filter_harmonics(x_fft, y_fft, low_pulse_bpm, high_pulse_bpm)
 
             return x_fft, y_fft
         else:

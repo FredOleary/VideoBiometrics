@@ -65,6 +65,7 @@ class ROIColorICA(ROITracker):
             self.raw_amplitude_red = normalize_amplitude(bgr_series[:, 2])
             self.logger.info("RBG Normalized at time {}".format(time.time() - start_time))
 
+            self.__write_RGB_data_as_swift()
             band_pass_filter = BandPassFilter()
             blue_series = normalize_amplitude(
                 band_pass_filter.time_filter2(self.raw_amplitude_blue, fps, low_pulse_bpm, high_pulse_bpm))
@@ -123,6 +124,7 @@ class ROIColorICA(ROITracker):
             self.pk_pk_series = confidence_list[0]["series"]
 
             peaks_positive, details = signal.find_peaks(self.pk_pk_series)
+            tmp = np.diff(peaks_positive)
 
             self.peaks_positive_red, _ = signal.find_peaks(self.filtered_amplitude_red)
             self.peaks_positive_green, _ = signal.find_peaks(self.filtered_amplitude_green)
@@ -147,11 +149,19 @@ class ROIColorICA(ROITracker):
         else:
             return 1
 
-    def calculate_bpm_from_peaks_positive(self):
+    def calculate_bpm_from_peaks_positive(self, low_pulse_bpm, high_pulse_bpm):
         if self.peaks_positive_amplitude is not None:
-            time_intervals = np.average(np.diff(self.peaks_positive_amplitude))
-            per_beat_in_seconds = time_intervals * (self.time_period[1] - self.time_period[0])
-            self.bpm_pk_pk = 1 / per_beat_in_seconds * 60
+            low_peak_count = (1/(low_pulse_bpm/60))/(self.time_period[1] - self.time_period[0])
+            high_peak_count = (1/(high_pulse_bpm/60))/(self.time_period[1] - self.time_period[0])
+            peak_counts =  np.diff(self.peaks_positive_amplitude)
+            filtered_peak_counts = []
+            for peak_count in peak_counts:
+                if high_peak_count < peak_count < low_peak_count:
+                    filtered_peak_counts.append(peak_count)
+            if len(filtered_peak_counts) > 0:
+                time_intervals = np.average(filtered_peak_counts)
+                per_beat_in_seconds = time_intervals * (self.time_period[1] - self.time_period[0])
+                self.bpm_pk_pk = 1 / per_beat_in_seconds * 60
 
     def calculate_bpm_from_fft(self):
         if self.fft_amplitude_total is not None:
@@ -181,3 +191,18 @@ class ROIColorICA(ROITracker):
         next_value = fft[indices[len(indices) - 2]]
         confidence = 100 - (next_value / max_value * 100)
         return max_value, max_index, confidence
+
+    def __write_RGB_data_as_swift(self ):
+        file_swift = open("sampleSwiftFormat.txt", "w")
+        file_swift.write("let hrSampleBlue: [Double] {\n" )
+        for i in range(256):
+            file_swift.write( str(self.raw_amplitude_blue[i]) + ",\n")
+        file_swift.write("\nlet hrSampleGreen: [Double] {\n" )
+        for i in range(256):
+            file_swift.write(str(self.raw_amplitude_green[i]) + ",\n")
+        file_swift.write("\nlet hrSampleRed: [Double] {\n" )
+        for i in range(256):
+            file_swift.write(str(self.raw_amplitude_red[i]) + ",\n")
+
+        file_swift.close()
+
